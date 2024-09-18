@@ -4,11 +4,14 @@ import config.screen as conf_screen
 import config.colors as colors
 import entities.player as player_config
 import terrain.Platformer as platformer
+import season_cycle as season_cycle_manager
 
 pygame.init()
 
 screen = pygame.display.set_mode((conf_screen.WIDTH_SCREEN, conf_screen.HEIGHT_SCREEN))
 grid = [[0 for x in range(conf_screen.COLS)] for y in range(conf_screen.ROWS)]
+
+season_cycle = season_cycle_manager.SeasonCycle(screen, conf_screen.CELL_SIZE*2, conf_screen.CELL_SIZE*2, conf_screen.CELL_SIZE*.2, conf_screen.CELL_SIZE*.2)
 
 pygame.display.set_caption("Seasonal Odyssey")
 
@@ -115,12 +118,20 @@ while isRunning:
     conf_screen.draw_grid(grid, screen)
 
     sprites.draw(screen)
+    
+    # Mettre à jour et afficher le cycle des saisons
+    season_cycle.update_needle_rotation()
+    season_cycle.show_season_cycle()
 
-    font = pygame.font.SysFont(None, 48)
-    season_text = font.render(SEASONS[current_season_index], True, colors.BLACK)
-    screen.blit(season_text, (20, 20))
-
+    # Afficher la saison actuelle
+    current_season = season_cycle.current_season()
+    print(f"Saison actuelle: {current_season}")
     pygame.display.flip()
+    
+    # print(season_cycle.elapsed_time)
+    # print(season_cycle.year_elapsed(season_cycle.elapsed_time))
+
+    season_cycle.elapsed_time = pygame.time.get_ticks() // (1000//8)
     clock.tick(60)
 
 pygame.quit()

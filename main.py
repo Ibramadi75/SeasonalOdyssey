@@ -3,26 +3,20 @@ import os
 import config.screen as conf_screen
 import config.colors as colors
 import entities.player as player_config
+import terrain.Platformer as terPlatform
+import season_cycle as season_cycle_manager
 
 pygame.init()
 
 screen = pygame.display.set_mode((conf_screen.WIDTH_SCREEN, conf_screen.HEIGHT_SCREEN))
 grid = [[0 for x in range(conf_screen.COLS)] for y in range(conf_screen.ROWS)]
 
+season_cycle = season_cycle_manager.SeasonCycle(screen, conf_screen.CELL_SIZE*2, conf_screen.CELL_SIZE*2, conf_screen.CELL_SIZE*.2, conf_screen.CELL_SIZE*.2)
+
 pygame.display.set_caption("Seasonal Odyssey")
 
 GRAVITE = 0.8
-
 PATH = os.path.dirname(__file__)
-
-class Platform(pygame.sprite.Sprite):
-    def __init__(self, largeur, hauteur, x, y):
-        super().__init__()
-        self.image = pygame.Surface((largeur, hauteur))
-        self.image.fill(colors.GREEN)
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
 
 sprites = pygame.sprite.Group()
 platforms = pygame.sprite.Group()
@@ -30,8 +24,10 @@ platforms = pygame.sprite.Group()
 player = player_config.Player()
 sprites.add(player)
 
-platform = Platform(conf_screen.WIDTH_SCREEN, 20, 0, conf_screen.HEIGHT_SCREEN - 100)
-platforms.add(platform)
+platform = terPlatform.Platform(conf_screen.WIDTH_SCREEN, conf_screen.CELL_SIZE, 0, conf_screen.HEIGHT_SCREEN - conf_screen.CELL_SIZE*2)
+if (platform.enable_collision):
+    platforms.add(platform)
+
 sprites.add(platform)
 
 clock = pygame.time.Clock()
@@ -53,22 +49,7 @@ while isRunning:
                 player.stop()
                 
     sprites.update()
-
-    if not player.is_grounded:
-        player.gravite()
-        
-    player.rect.x += player.x_current_speed
-    player.rect.y += player.y_current_speed
-    
-    if player.rect.right >conf_screen.WIDTH_SCREEN:
-        player.rect.right = conf_screen.WIDTH_SCREEN
-    if player.rect.left < 0:
-        player.rect.left = 0
-
-    if player.rect.bottom > conf_screen.HEIGHT_SCREEN:
-        player.rect.bottom = conf_screen.HEIGHT_SCREEN
-        player.is_grounded = True
-        player.y_current_speed = 0
+    player.update()
     
     collided_platform = pygame.sprite.spritecollide(player, platforms, False)
     if collided_platform:
@@ -81,9 +62,20 @@ while isRunning:
     screen.fill(colors.WHITE)
     conf_screen.draw_grid(grid, screen)
     sprites.draw(screen)
+    
+    # Mettre à jour et afficher le cycle des saisons
+    season_cycle.update_needle_rotation()
+    season_cycle.show_season_cycle()
 
+    # Afficher la saison actuelle
+    current_season = season_cycle.current_season()
+    print(f"Saison actuelle: {current_season}")
     pygame.display.flip()
+    
+    # print(season_cycle.elapsed_time)
+    # print(season_cycle.year_elapsed(season_cycle.elapsed_time))
 
+    season_cycle.elapsed_time = pygame.time.get_ticks() // (1000//8)
     clock.tick(60)
 
 pygame.quit()

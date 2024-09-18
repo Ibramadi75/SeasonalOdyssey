@@ -21,7 +21,7 @@ platforms = pygame.sprite.Group()
 player = player_config.Player()
 sprites.add(player)
 
-platform = terPlatform.Platform(conf_screen.WIDTH_SCREEN, 20, 0, conf_screen.HEIGHT_SCREEN - 100)
+platform = terPlatform.Platform(conf_screen.WIDTH_SCREEN, conf_screen.CELL_SIZE, 0, conf_screen.HEIGHT_SCREEN - conf_screen.CELL_SIZE*2)
 if (platform.enable_collision):
     platforms.add(platform)
 
@@ -46,22 +46,7 @@ while isRunning:
                 player.stop()
                 
     sprites.update()
-
-    if not player.is_grounded:
-        player.gravite()
-        
-    player.rect.x += player.x_current_speed
-    player.rect.y += player.y_current_speed
-    
-    if player.rect.right >conf_screen.WIDTH_SCREEN:
-        player.rect.right = conf_screen.WIDTH_SCREEN
-    if player.rect.left < 0:
-        player.rect.left = 0
-
-    if player.rect.bottom > conf_screen.HEIGHT_SCREEN:
-        player.rect.bottom = conf_screen.HEIGHT_SCREEN
-        player.is_grounded = True
-        player.y_current_speed = 0
+    player.update()
     
     collided_platform = pygame.sprite.spritecollide(player, platforms, False)
     if collided_platform:

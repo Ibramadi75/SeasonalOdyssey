@@ -6,7 +6,6 @@ import entities.player as player_config
 import terrain.Platformer as platformer
 import season_cycle as season_cycle_manager
 
-pygame.init()
 
 screen = pygame.display.set_mode((conf_screen.WIDTH_SCREEN, conf_screen.HEIGHT_SCREEN))
 grid = [[0 for x in range(conf_screen.COLS)] for y in range(conf_screen.ROWS)]

@@ -14,7 +14,7 @@ grid = [[0 for x in range(conf_screen.COLS)] for y in range(conf_screen.ROWS)]
 
 season_cycle = season_cycle_manager.SeasonCycle(screen, conf_screen.CELL_SIZE*2, conf_screen.CELL_SIZE*2, conf_screen.CELL_SIZE*.2, conf_screen.CELL_SIZE*.2)
 
-tmx_data = pytmx.util_pygame.load_pygame('assets/map/map.tmx')
+tmx_data = pytmx.util_pygame.load_pygame('map.tmx')
 SCALE_FACTOR = 2
 
 pygame.display.set_caption("Seasonal Odyssey")

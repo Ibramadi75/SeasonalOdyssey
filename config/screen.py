@@ -5,8 +5,8 @@ import config.colors as colors
 pygame.init()
 
 # On maintient 20 colonnes et 14 rangées
-COLS = 20
-ROWS = 14
+COLS = 36
+ROWS = 24
 
 # Récupérer les informations de l'écran
 info = pygame.display.Info()
@@ -16,7 +16,7 @@ WIDTH_SCREEN = info.current_w
 HEIGHT_SCREEN = info.current_h
 
 # Calculer la taille des cellules en fonction de la résolution actuelle de l'écran
-CELL_SIZE = min(WIDTH_SCREEN // COLS, HEIGHT_SCREEN // ROWS)
+CELL_SIZE = 32
 
 # Redéfinir les dimensions de l'écran pour s'adapter exactement à 14x20 cellules
 WIDTH_SCREEN = CELL_SIZE * COLS

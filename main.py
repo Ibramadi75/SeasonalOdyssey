@@ -11,7 +11,7 @@ import pytmx
 screen = pygame.display.set_mode((conf_screen.WIDTH_SCREEN, conf_screen.HEIGHT_SCREEN))
 grid = [[0 for x in range(conf_screen.COLS)] for y in range(conf_screen.ROWS)]
 
-season_cycle = season_cycle_manager.SeasonCycle(screen, conf_screen.CELL_SIZE*2, conf_screen.CELL_SIZE*2, conf_screen.CELL_SIZE*.2, conf_screen.CELL_SIZE*.2)
+season_cycle = season_cycle_manager.SeasonCycle(screen, conf_screen.CELL_SIZE*4, conf_screen.CELL_SIZE*4, conf_screen.CELL_SIZE*.2, conf_screen.CELL_SIZE*.2)
 
 tmx_data = pytmx.util_pygame.load_pygame('map.tmx')
 SCALE_FACTOR = 2

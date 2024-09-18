@@ -4,6 +4,7 @@ import config.screen as conf_screen
 import config.colors as colors
 import entities.player as player_config
 import terrain.Platformer as terPlatform
+import season_cycle
 
 pygame.init()
 
@@ -59,7 +60,10 @@ while isRunning:
     screen.fill(colors.WHITE)
     conf_screen.draw_grid(grid, screen)
     sprites.draw(screen)
-
+    
+    season_cycle.elapsed_time = pygame.time.get_ticks() // 125
+    season_cycle.show_season_cycle(screen, conf_screen.CELL_SIZE*2, conf_screen.CELL_SIZE*2, .2*conf_screen.CELL_SIZE, .2*conf_screen.CELL_SIZE, season_cycle.elapsed_time)
+    print(season_cycle.current_season(season_cycle.elapsed_time))
     pygame.display.flip()
 
     clock.tick(60)

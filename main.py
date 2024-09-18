@@ -54,7 +54,9 @@ while isRunning:
                 
     sprites.update()
 
-    player.gravite()
+    if not player.is_grounded:
+        player.gravite()
+        
     player.rect.x += player.x_current_speed
     player.rect.y += player.y_current_speed
     
@@ -68,9 +70,13 @@ while isRunning:
         player.is_grounded = True
         player.y_current_speed = 0
     
-    if pygame.sprite.spritecollide(player, platforms, False):
+    collided_platform = pygame.sprite.spritecollide(player, platforms, False)
+    if collided_platform:
+        player.rect.bottom = collided_platform[0].rect.top
         player.is_grounded = True
-        player.jump_speed = 0
+        player.y_current_speed = 0
+    else:
+        player.is_grounded = False
 
     screen.fill(colors.WHITE)
     conf_screen.draw_grid(grid, screen)

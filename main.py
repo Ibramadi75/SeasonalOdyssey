@@ -3,6 +3,7 @@ import os
 import config.screen as conf_screen
 import config.colors as colors
 import entities.player as player_config
+import terrain.Platformer as terPlatform
 
 pygame.init()
 
@@ -12,17 +13,7 @@ grid = [[0 for x in range(conf_screen.COLS)] for y in range(conf_screen.ROWS)]
 pygame.display.set_caption("Seasonal Odyssey")
 
 GRAVITE = 0.8
-
 PATH = os.path.dirname(__file__)
-
-class Platform(pygame.sprite.Sprite):
-    def __init__(self, largeur, hauteur, x, y):
-        super().__init__()
-        self.image = pygame.Surface((largeur, hauteur))
-        self.image.fill(colors.GREEN)
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
 
 sprites = pygame.sprite.Group()
 platforms = pygame.sprite.Group()
@@ -30,8 +21,10 @@ platforms = pygame.sprite.Group()
 player = player_config.Player()
 sprites.add(player)
 
-platform = Platform(conf_screen.WIDTH_SCREEN, 20, 0, conf_screen.HEIGHT_SCREEN - 100)
-platforms.add(platform)
+platform = terPlatform.Platform(conf_screen.WIDTH_SCREEN, 20, 0, conf_screen.HEIGHT_SCREEN - 100)
+if (platform.enable_collision):
+    platforms.add(platform)
+
 sprites.add(platform)
 
 clock = pygame.time.Clock()

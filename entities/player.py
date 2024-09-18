@@ -18,7 +18,7 @@ class Player(pygame.sprite.Sprite):
         self.x_current_speed = 0
         self.y_current_speed = 0
         self.move_speed = 10
-        self.jump_speed = 10
+        self.jump_speed = 20
 
     def gravite(self):
         if not self.is_grounded:

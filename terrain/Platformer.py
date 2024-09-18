@@ -5,7 +5,6 @@ class Platform(pygame.sprite.Sprite):
     def __init__(self, largeur, hauteur, x, y, enable_collision = True):
         super().__init__()
         self.image = pygame.Surface((largeur, hauteur))
-        self.image.fill(colors.GREEN)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y

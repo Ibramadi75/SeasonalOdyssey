@@ -11,6 +11,12 @@ class SeasonCycle:
     NEEDLE_IMAGE_PATH = "assets/clock_needle.png"
 
     SEASONS = ["Spring", "Summer", "Autumn", "Winter"]
+    SEASON_LAYERS = {
+        "Spring": ["spring_layer"],
+        # "Summer": ["summer_layer"],
+        "Autumn": ["autumn_layer"],
+        # "Winter": ["winter_layer"]
+    }
 
     def __init__(self, screen, width, height, x, y):
         self.screen = screen

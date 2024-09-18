@@ -4,7 +4,7 @@ import config.screen as conf_screen
 import config.colors as colors
 import entities.player as player_config
 import terrain.Platformer as terPlatform
-import season_cycle as season_cycle_manager
+import season_cycle
 import pytmx
 
 pygame.init()
@@ -12,12 +12,10 @@ pygame.init()
 screen = pygame.display.set_mode((conf_screen.WIDTH_SCREEN, conf_screen.HEIGHT_SCREEN))
 grid = [[0 for x in range(conf_screen.COLS)] for y in range(conf_screen.ROWS)]
 
-season_cycle = season_cycle_manager.SeasonCycle(screen, conf_screen.CELL_SIZE*2, conf_screen.CELL_SIZE*2, conf_screen.CELL_SIZE*.2, conf_screen.CELL_SIZE*.2)
-
-tmx_data = pytmx.util_pygame.load_pygame('assets/map/map.tmx')
-SCALE_FACTOR = 2
-
 pygame.display.set_caption("Seasonal Odyssey")
+
+tmx_data = pytmx.util_pygame.load_pygame('map.tmx')
+SCALE_FACTOR = 2
 
 GRAVITE = 0.8
 PATH = os.path.dirname(__file__)
@@ -33,11 +31,16 @@ for layer in tmx_data.visible_layers:
         if layer.name == "collision_layer":
             for obj in layer:
                 # Crée un rectangle pour chaque objet de collision
-                rect = pygame.Rect(obj.x* SCALE_FACTOR, obj.y* SCALE_FACTOR, obj.width* SCALE_FACTOR, obj.height* SCALE_FACTOR)
+                rect = pygame.Rect(obj.x, obj.y, obj.width, obj.height)
                 platform = terPlatform.Platform(rect.width, rect.height, rect.x, rect.y)
                 if (platform.enable_collision):
                     platforms.add(platform)
-                    sprites.add(platform)
+
+# platform = terPlatform.Platform(conf_screen.WIDTH_SCREEN, conf_screen.CELL_SIZE, 0, conf_screen.HEIGHT_SCREEN - conf_screen.CELL_SIZE*2)
+# if (platform.enable_collision):
+#     platforms.add(platform)
+
+sprites.add(platform)
 
 def draw_specific_layers(layers_to_draw):
     for layer in tmx_data.visible_layers:
@@ -85,19 +88,14 @@ while isRunning:
     conf_screen.draw_grid(grid, screen)
     sprites.draw(screen)
     
-    # Mettre à jour et afficher le cycle des saisons
-    season_cycle.update_needle_rotation()
-    season_cycle.show_season_cycle()
-
-    # Afficher la saison actuelle
-    current_season = season_cycle.current_season()
-
-    if current_season in ['Spring', 'Autumn']:
-        draw_specific_layers(season_cycle.SEASON_LAYERS[current_season])
-
+    season_cycle.elapsed_time = pygame.time.get_ticks() // 125
+    season_cycle.show_season_cycle(screen, conf_screen.CELL_SIZE*2, conf_screen.CELL_SIZE*2, .2*conf_screen.CELL_SIZE, .2*conf_screen.CELL_SIZE, season_cycle.elapsed_time)
+    
+    draw_specific_layers(["spring_layer"])
+    
+    print(season_cycle.current_season(season_cycle.elapsed_time))
     pygame.display.flip()
 
-    season_cycle.elapsed_time = pygame.time.get_ticks() // (1000//8)
     clock.tick(60)
 
 pygame.quit()

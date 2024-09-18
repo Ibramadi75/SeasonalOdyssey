@@ -3,11 +3,10 @@ import os
 import config.screen as conf_screen
 import config.colors as colors
 import entities.player as player_config
-import terrain.Platformer as terPlatform
+import terrain.Platformer as platformer
 import season_cycle as season_cycle_manager
 import pytmx
 
-pygame.init()
 
 screen = pygame.display.set_mode((conf_screen.WIDTH_SCREEN, conf_screen.HEIGHT_SCREEN))
 grid = [[0 for x in range(conf_screen.COLS)] for y in range(conf_screen.ROWS)]
@@ -20,7 +19,16 @@ SCALE_FACTOR = 2
 pygame.display.set_caption("Seasonal Odyssey")
 
 GRAVITE = 0.8
+SCROLL_SPEED = 5  
+SCROLL_THRESHOLD = 0.85 * conf_screen.WIDTH_SCREEN 
+
 PATH = os.path.dirname(__file__)
+
+SEASONS = ["Printemps", "Été", "Automne", "Hiver"]
+current_season_index = 0
+season_change_time = 5000  # 5 secondes en millisecondes
+last_season_change = pygame.time.get_ticks()
+
 
 sprites = pygame.sprite.Group()
 platforms = pygame.sprite.Group()
@@ -34,10 +42,9 @@ for layer in tmx_data.visible_layers:
             for obj in layer:
                 # Crée un rectangle pour chaque objet de collision
                 rect = pygame.Rect(obj.x* SCALE_FACTOR, obj.y* SCALE_FACTOR, obj.width* SCALE_FACTOR, obj.height* SCALE_FACTOR)
-                platform = terPlatform.Platform(rect.width, rect.height, rect.x, rect.y)
-                if (platform.enable_collision):
-                    platforms.add(platform)
-                    sprites.add(platform)
+                platform = platformer.Platform(rect.width, rect.height, rect.x, rect.y)
+                platforms.add(platform)
+                sprites.add(platform)
 
 def draw_specific_layers(layers_to_draw):
     for layer in tmx_data.visible_layers:
@@ -59,30 +66,64 @@ while isRunning:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             isRunning = False
+
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 player.jump()
-            if event.key == pygame.K_RIGHT:
+            elif event.key == pygame.K_RIGHT:
                 player.move_right()
-            if event.key == pygame.K_LEFT:
+            elif event.key == pygame.K_LEFT:
                 player.move_left()
+
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT:
                 player.stop()
-                
-    sprites.update()
-    player.update()
-    
+
+    scroll_x = 0
+    if player.rect.right > SCROLL_THRESHOLD:
+        scroll_x = SCROLL_SPEED
+
+    # Ici on fait défiler toutes les plateformes
+    platforms.update(scroll_x)
+    if not player.is_grounded:
+        player.gravite()
+
+    player.rect.x += player.x_current_speed
+    player.rect.y += player.y_current_speed
+
+    # Le joueur ne peut pas sortir de l'écran à gauche (limite de la fenêtre du début)
+    if player.rect.left < 0:
+        player.rect.left = 0
+
+    # Si le joueur tombe sous l'écran, il meurt et le jeu recommence au TOUT début en remontant meme le background et remettant le joueur en position initiale
+    if player.rect.top > conf_screen.HEIGHT_SCREEN:
+        player.rect.x = 400
+        player.rect.y = conf_screen.HEIGHT_SCREEN - 400
+        player.is_grounded = False
+        player.y_current_speed = 0
+        player.x_current_speed = 0
+
+        
+    # Gestion des collisions entre le joueur et les plateformes
     collided_platform = pygame.sprite.spritecollide(player, platforms, False)
     if collided_platform:
-        player.rect.bottom = collided_platform[0].rect.top
         player.is_grounded = True
         player.y_current_speed = 0
-    else:
+        player.rect.bottom = collided_platform[0].rect.top
+
+    elif not collided_platform:
         player.is_grounded = False
 
+    # Vérifier si 5 secondes se sont écoulées pour changer de saison
+    current_time = pygame.time.get_ticks()
+    if current_time - last_season_change > season_change_time:
+        current_season_index = (current_season_index + 1) % len(SEASONS)
+        last_season_change = current_time
+
     screen.fill(colors.WHITE)
+    
     conf_screen.draw_grid(grid, screen)
+
     sprites.draw(screen)
     
     # Mettre à jour et afficher le cycle des saisons

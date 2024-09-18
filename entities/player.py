@@ -19,7 +19,6 @@ class Player(pygame.sprite.Sprite):
         self.y_current_speed = 0
         self.move_speed = 6
         self.jump_speed = 15
-        self.age = 12
         
     def update(self):
         if not self.is_grounded:
@@ -28,7 +27,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.x += self.x_current_speed
         self.rect.y += self.y_current_speed
         
-        if self.rect.right >conf_screen.WIDTH_SCREEN:
+        if self.rect.right > conf_screen.WIDTH_SCREEN:
             self.rect.right = conf_screen.WIDTH_SCREEN
         if self.rect.left < 0:
             self.rect.left = 0

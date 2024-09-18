@@ -1,18 +1,29 @@
 import pygame
-import  config.colors as colors
+import config.colors as colors
 
-WIDTH_SCREEN = 1280
-HEIGHT_SCREEN = 896
+# Initialiser Pygame avant d'utiliser display.Info()
+pygame.init()
 
-CELL_SIZE = 64
-ROWS = HEIGHT_SCREEN // CELL_SIZE
-COLS = WIDTH_SCREEN // CELL_SIZE
+# On maintient 20 colonnes et 14 rangées
+COLS = 20
+ROWS = 14
+
+# Récupérer les informations de l'écran
+info = pygame.display.Info()
+
+# Calculer la taille de l'écran en fonction de la taille des cellules
+WIDTH_SCREEN = info.current_w
+HEIGHT_SCREEN = info.current_h
+
+# Calculer la taille des cellules en fonction de la résolution actuelle de l'écran
+CELL_SIZE = min(WIDTH_SCREEN // COLS, HEIGHT_SCREEN // ROWS)
+
+# Redéfinir les dimensions de l'écran pour s'adapter exactement à 14x20 cellules
+WIDTH_SCREEN = CELL_SIZE * COLS
+HEIGHT_SCREEN = CELL_SIZE * ROWS
 
 def draw_grid(grid, screen):
     for y in range(ROWS):
         for x in range(COLS):
             rect = pygame.Rect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE)
-            if grid[y][x] == 1:
-                pygame.draw.rect(screen, colors.RED, rect)
-            else:
-                pygame.draw.rect(screen, colors.BLACK, rect, 1)
+            pygame.draw.rect(screen, colors.BLACK, rect, 1)

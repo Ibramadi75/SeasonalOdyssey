@@ -7,7 +7,11 @@ import terrain.Platformer as platformer
 import season_cycle as season_cycle_manager
 
 
+PADDING = 50  
+os.environ['SDL_VIDEO_WINDOW_POS'] = f"{PADDING},{PADDING}"
+
 screen = pygame.display.set_mode((conf_screen.WIDTH_SCREEN, conf_screen.HEIGHT_SCREEN))
+
 grid = [[0 for x in range(conf_screen.COLS)] for y in range(conf_screen.ROWS)]
 
 season_cycle = season_cycle_manager.SeasonCycle(screen, conf_screen.CELL_SIZE*2, conf_screen.CELL_SIZE*2, conf_screen.CELL_SIZE*.2, conf_screen.CELL_SIZE*.2)

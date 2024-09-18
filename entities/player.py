@@ -12,8 +12,8 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
         self.image = PLAYER_IMG
         self.rect = self.image.get_rect()
-        self.rect.x = 400
-        self.rect.y = conf_screen.HEIGHT_SCREEN - 400
+        self.rect.x = conf_screen.CELL_SIZE*2
+        self.rect.y = conf_screen.HEIGHT_SCREEN - conf_screen.CELL_SIZE*4
         self.is_grounded = False
         self.x_current_speed = 0
         self.y_current_speed = 0
@@ -37,6 +37,8 @@ class Player(pygame.sprite.Sprite):
             self.rect.bottom = conf_screen.HEIGHT_SCREEN
             self.is_grounded = True
             self.y_current_speed = 0
+            
+        self.update_state()
 
     def gravite(self):
         if not self.is_grounded:
@@ -56,26 +58,42 @@ class Player(pygame.sprite.Sprite):
     def stop(self):
         self.x_current_speed = 0
         
-    def state(self):
-        return self.age / 18
-    
-    def die():
-        return;
+    def update_state(self):
         
-    def grow(self):
-        self.age += 1
+        if (self.age < 65):
+            self.state = 3
+        if (self.age < 50):
+            self.state = 2
+        if (self.age < 18):
+            self.state = 1
+            
+        if (self.age >= 65):
+            self.die()
+            
+        self.update_appearance()
         
+    def update_appearance(self):
+        print(self.state)
         if (self.state == 1):
             self.image = pygame.Surface((50, 50))
-            self.image.fill(colors.YELLOW)
+            self.image.fill(colors.SOFT_WHITE)
         elif (self.state == 2):
-            self.image = pygame.Surface((100, 100))
-            self.image.fill(colors.BLUE)
+            self.image = pygame.Surface((50, 80))
+            self.image.fill(colors.GRAY)
         elif (self.state == 3):
-            self.image = pygame.Surface((150, 150))
-            self.image.fill(colors.GREEN)
+            self.image = pygame.Surface((50, 65))
+            self.image.fill(colors.BLACK)
         else: 
             self.die()
+            
+        print(self.state)
+        
+    def set_age(self, age):
+        self.age = age
+    
+    def die():
+        print("You are dead")
+        return;
             
         
         

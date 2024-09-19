@@ -18,7 +18,7 @@ class Player(pygame.sprite.Sprite):
         self.x_current_speed = 0
         self.y_current_speed = 0
         self.move_speed = 6
-        self.jump_speed = 15
+        self.jump_speed = 12
         self.age = 8
         self.state = 1
         self.platforms = platforms  # Liste des plateformes pour la détection de collision
@@ -48,7 +48,7 @@ class Player(pygame.sprite.Sprite):
             self.rect.bottom = conf_screen.HEIGHT_SCREEN
             self.is_grounded = True
             self.y_current_speed = 0
-
+        
     def gravite(self):
         """Appliquer la gravité si le joueur n'est pas au sol"""
         self.y_current_speed += GRAVITE

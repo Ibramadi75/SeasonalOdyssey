@@ -96,18 +96,16 @@ while isRunning:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             isRunning = False
-
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                player.jump()
-            if event.key == pygame.K_RIGHT:
-                player.move_right()
-            if event.key == pygame.K_LEFT:
-                player.move_left()
-
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT:
                 player.stop()
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT] :
+        player.move_left()
+    if keys[pygame.K_RIGHT] :
+        player.move_right()
+    if keys[pygame.K_SPACE] :
+        player.jump()
 
     scroll_x_camera += player.x_current_speed if player.rect.right > SCROLL_THRESHOLD else 0
                 

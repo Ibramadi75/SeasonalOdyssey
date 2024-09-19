@@ -26,6 +26,11 @@ SCROLL_THRESHOLD = 0.35 * conf_screen.WIDTH_SCREEN
 
 PATH = os.path.dirname(__file__)
 
+
+# Charger l'image
+background_image = pygame.image.load('assets/winter/background/background.png').convert()
+background_image = pygame.transform.scale(background_image, (conf_screen.WIDTH_SCREEN, conf_screen.HEIGHT_SCREEN))
+
 SEASONS = ["Printemps", "Été", "Automne", "Hiver"]
 current_season_index = 0
 season_change_time = 5000  # 5 secondes en millisecondes
@@ -150,9 +155,9 @@ while isRunning:
         current_season_index = (current_season_index + 1) % len(SEASONS)
         last_season_change = current_time
 
-    screen.fill(colors.WHITE)
+    screen.blit(background_image, (0, 0))
     
-    conf_screen.draw_grid(grid, screen)
+    #conf_screen.draw_grid(grid, screen)
 
     sprites.draw(screen)
     
@@ -171,8 +176,6 @@ while isRunning:
     # Afficher les layers de la saison actuelle avec le défilement
     current_season = season_cycle.current_season()
     draw_visible_tiles(season_cycle.SEASON_LAYERS['Spring'], scroll_x_camera)
-    
-    player.show_age(screen)
     # if current_season in ['Spring', 'Autumn']:
     #     draw_specific_layers(season_cycle.SEASON_LAYERS[current_season], scroll_x, player.rect.x)
     player.show_age(screen)

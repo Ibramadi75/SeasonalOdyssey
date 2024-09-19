@@ -20,7 +20,11 @@ class Player(pygame.sprite.Sprite):
         self.move_speed = 6
         self.jump_speed = 15
         
-    def update(self):
+        self.state = 1
+        
+        self.age = 0
+        
+    def update(self):        
         if not self.is_grounded:
             self.gravite()
         
@@ -36,15 +40,13 @@ class Player(pygame.sprite.Sprite):
             self.rect.bottom = conf_screen.HEIGHT_SCREEN
             self.is_grounded = True
             self.y_current_speed = 0
-            
-        self.update_state()
 
     def gravite(self):
         if not self.is_grounded:
             self.y_current_speed += GRAVITE
 
     def jump(self):
-        if self.is_grounded:
+        if self.is_grounded or self.y_current_speed == 0:
             self.y_current_speed = -self.jump_speed
             self.is_grounded = False
 
@@ -57,8 +59,11 @@ class Player(pygame.sprite.Sprite):
     def stop(self):
         self.x_current_speed = 0
         
-    def update_state(self):
+    def update_age(self, year_elapsed):
+        started_age = 16
+        self.age = (year_elapsed) + started_age
         
+    def update_state(self):
         if (self.age < 65):
             self.state = 3
         if (self.age < 50):
@@ -72,7 +77,6 @@ class Player(pygame.sprite.Sprite):
         self.update_appearance()
         
     def update_appearance(self):
-        print(self.state)
         if (self.state == 1):
             self.image = pygame.Surface((50, 50))
             self.image.fill(colors.SOFT_WHITE)
@@ -85,14 +89,29 @@ class Player(pygame.sprite.Sprite):
         else: 
             self.die()
             
-        print(self.state)
-        
-    def set_age(self, age):
-        self.age = age
+    def get_age(self):
+        return self.age
     
     def die():
         print("You are dead")
         return;
+    
+    def show_age(self, screen):
+        font = pygame.font.Font(None, conf_screen.CELL_SIZE*2)
+        text = font.render("Âge : " + str(self.get_age()), 1, (0, 0, 255))
+        text_rect = text.get_rect()
+        screen.blit(text, (conf_screen.WIDTH_SCREEN - text_rect.width - (conf_screen.WIDTH_SCREEN//20), text_rect.height))
+        
+        image_path = "assets/UI/state/" + str(self.state) + ".png"
+        image = pygame.image.load(image_path)
+        
+        doubled_size = (image.get_width() * 1, image.get_height() * 1)
+        image = pygame.transform.scale(image, doubled_size)
+
+        image_rect = image.get_rect()
+        image_rect.center = (conf_screen.WIDTH_SCREEN - text_rect.width - (conf_screen.WIDTH_SCREEN // 15), conf_screen.CELL_SIZE * 2.5)
+        screen.blit(image, image_rect.topleft)
+        
             
         
         

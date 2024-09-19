@@ -6,7 +6,7 @@ pygame.init()
 # On maintient 20 colonnes et 14 rangées
 COLS = 36
 ROWS = 24
-PADDING = 50  # 50 pixels de marge de chaque côté
+PADDING = 500  # 50 pixels de marge de chaque côté
 
 info = pygame.display.Info()
 screen_width = info.current_w

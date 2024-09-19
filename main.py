@@ -22,7 +22,7 @@ pygame.display.set_caption("Seasonal Odyssey")
 
 GRAVITE = 0.8
 SCROLL_SPEED = 1.5  
-SCROLL_THRESHOLD = 0.75 * conf_screen.WIDTH_SCREEN 
+SCROLL_THRESHOLD = 0.35 * conf_screen.WIDTH_SCREEN 
 
 PATH = os.path.dirname(__file__)
 
@@ -108,18 +108,16 @@ while isRunning:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             isRunning = False
-
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                player.jump()
-            if event.key == pygame.K_RIGHT:
-                player.move_right()
-            if event.key == pygame.K_LEFT:
-                player.move_left()
-
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT:
                 player.stop()
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT] :
+        player.move_left()
+    if keys[pygame.K_RIGHT] :
+        player.move_right()
+    if keys[pygame.K_SPACE] :
+        player.jump()
 
     scroll_x_camera += player.x_current_speed * SCROLL_SPEED if player.rect.right > SCROLL_THRESHOLD else 0
                 
@@ -128,8 +126,6 @@ while isRunning:
 
     # Ici on fait défiler toutes les plateformes
     platforms.update(scroll_x)
-    if not player.is_grounded:
-        player.gravite()
 
     
 
@@ -145,7 +141,6 @@ while isRunning:
         player.y_current_speed = 0
         player.x_current_speed = 0
 
-        
     # Gestion des collisions entre le joueur et les plateformes
     
 
@@ -189,7 +184,8 @@ while isRunning:
 
     # if current_season in ['Spring', 'Autumn']:
     #     draw_specific_layers(season_cycle.SEASON_LAYERS[current_season], scroll_x, player.rect.x)
-
+    player.show_age(screen)
+    player.is_jumping = False
     player.update(actual_platforms)
 
     collided_platform = pygame.sprite.spritecollide(player, actual_platforms, False)

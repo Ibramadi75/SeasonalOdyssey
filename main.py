@@ -8,7 +8,6 @@ import terrain.Platformer as platformer
 import season_cycle as season_cycle_manager
 import pytmx
 
-# os.environ['SDL_VIDEO_WINDOW_POS'] = f"{conf_screen.PADDING},{conf_screen.PADDING}"
 pygame.mixer.init()
 
 # Load the music file
@@ -50,6 +49,7 @@ added_time_ms = 0      # Additional time in milliseconds
 
 sprites = pygame.sprite.Group()
 platforms = pygame.sprite.Group()
+platforms_lava = pygame.sprite.Group()
 
 player = player_config.Player(platforms)
 sprites.add(player)
@@ -64,6 +64,15 @@ for layer in tmx_data.visible_layers:
                 surface = pygame.Surface((rect.width, rect.height), pygame.SRCALPHA)
                 platform.image = surface
                 platforms.add(platform)
+
+        if layer.name == "lava_collision_layer":
+            for obj in layer:
+                # Crée un rectangle pour chaque objet de collision
+                rect = pygame.Rect(obj.x* SCALE_FACTOR, obj.y* SCALE_FACTOR, obj.width* SCALE_FACTOR, obj.height* SCALE_FACTOR)
+                platform = platformer.Platform(rect.width, rect.height, rect.x, rect.y)
+                surface = pygame.Surface((rect.width, rect.height), pygame.SRCALPHA)
+                platform.image = surface
+                platforms_lava.add(platform)
 
 # Fonction pour dessiner les couches spécifiques en tenant compte du défilement horizontal
 def draw_visible_tiles(layers_to_draw, scroll_x):
@@ -173,17 +182,15 @@ while isRunning:
         if player.rect.left < 0:
             player.rect.left = 0
 
+        collided_lava = pygame.sprite.spritecollide(player, platforms_lava, False)
         # Si le joueur tombe sous l'écran, il meurt et le jeu recommence au TOUT début en remontant meme le background et remettant le joueur en position initiale
-        if player.rect.top > conf_screen.HEIGHT_SCREEN:
+        if player.rect.top > conf_screen.HEIGHT_SCREEN or collided_lava:
             print('out')
             player.rect.x = 400
             player.rect.y = conf_screen.HEIGHT_SCREEN - 400
             player.is_grounded = False
             player.y_current_speed = 0
             player.x_current_speed = 0
-
-        # Gestion des collisions entre le joueur et les plateformes
-        
 
         screen.blit(background_image, (0, 0))
         
@@ -197,9 +204,7 @@ while isRunning:
         
         player.update_age(season_cycle.year_elapsed())
 
-        # Afficher les layers de la saison actuelle avec le défilement
         current_season = season_cycle.current_season()
-        # draw_visible_tiles(season_cycle.SEASON_LAYERS['Spring'], scroll_x_camera)
 
         if current_season == "Spring":
             draw_visible_tiles(["water_layer", "lava_layer", "tree1_layer"], scroll_x_camera)
@@ -214,7 +219,7 @@ while isRunning:
             draw_visible_tiles(["ice_layer", "lava_block_layer", "tree0_layer"], scroll_x_camera)
             actual_platforms = add_sprites_to_group(["collision_tree0_layer", "ice_collision_layer", "lava_block_collision_layer"], actual_platforms)
 
-        draw_visible_tiles(season_cycle.SEASON_LAYERS[current_season], scroll_x_camera)
+        draw_visible_tiles(season_cycle.SEASON_LAYERS["Spring"], scroll_x_camera) #
 
         player.show_age(screen)
         player.is_jumping = False

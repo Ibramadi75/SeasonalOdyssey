@@ -182,12 +182,9 @@ while isRunning:
     
     player.update_age(season_cycle.year_elapsed())
 
-    # Afficher la saison actuelle
-    current_season = season_cycle.current_season()
-
     # Afficher les layers de la saison actuelle avec le défilement
     current_season = season_cycle.current_season()
-    draw_visible_tiles(season_cycle.SEASON_LAYERS['Spring'], scroll_x_camera)
+    # draw_visible_tiles(season_cycle.SEASON_LAYERS['Spring'], scroll_x_camera)
 
     if current_season == "Spring":
         draw_visible_tiles(["water_layer", "lava_layer", "tree1_layer"], scroll_x_camera)
@@ -202,8 +199,8 @@ while isRunning:
         draw_visible_tiles(["ice_layer", "lava_block_layer", "tree0_layer"], scroll_x_camera)
         actual_platforms = add_sprites_to_group(["collision_tree0_layer", "ice_collision_layer", "lava_block_collision_layer"], actual_platforms)
 
-    # if current_season in ['Spring', 'Autumn']:
-    #     draw_specific_layers(season_cycle.SEASON_LAYERS[current_season], scroll_x, player.rect.x)
+    draw_visible_tiles(season_cycle.SEASON_LAYERS[current_season], scroll_x_camera)
+
     player.show_age(screen)
     player.is_jumping = False
 

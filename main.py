@@ -44,9 +44,8 @@ background_image = pygame.image.load('assets/winter/background/background.png').
 background_image = pygame.transform.scale(background_image, (conf_screen.WIDTH_SCREEN, conf_screen.HEIGHT_SCREEN))
 
 SEASONS = ["Printemps", "Été", "Automne", "Hiver"]
-current_season_index = 0
-season_change_time = 5000  # 5 secondes en millisecondes
-last_season_change = pygame.time.get_ticks()
+day_duration_ms = 100  # 0.1 seconds for 1 in-game day
+added_time_ms = 0      # Additional time in milliseconds
 
 sprites = pygame.sprite.Group()
 platforms = pygame.sprite.Group()
@@ -156,6 +155,8 @@ while isRunning:
         player.move_right()
     if keys[pygame.K_SPACE] :
         player.jump()
+    if keys[pygame.K_t]:
+        added_time_ms  += day_duration_ms // 32
 
     scroll_x_camera += player.x_current_speed * SCROLL_SPEED if player.rect.right > SCROLL_THRESHOLD else 0
                 
@@ -181,16 +182,10 @@ while isRunning:
     # Gestion des collisions entre le joueur et les plateformes
     
 
-    # Vérifier si 5 secondes se sont écoulées pour changer de saison
-    current_time = pygame.time.get_ticks()
-    if current_time - last_season_change > season_change_time:
-        current_season_index = (current_season_index + 1) % len(SEASONS)
-        last_season_change = current_time
-
     screen.blit(background_image, (0, 0))
     
     #conf_screen.draw_grid(grid, screen)
-
+    season_cycle.elapsed_time = (pygame.time.get_ticks() // (day_duration_ms)) + (added_time_ms)
     sprites.draw(screen)
     
     # Mettre à jour et afficher le cycle des saisons
@@ -232,13 +227,7 @@ while isRunning:
 
     elif not collided_platform:
         player.is_grounded = False
-
-    pygame.display.flip()
-
-    if (player.state == 2):
-        season_cycle.elapsed_time = pygame.time.get_ticks() // (1000//64)
-    else:
-        season_cycle.elapsed_time = pygame.time.get_ticks() // (1000//32)
     clock.tick(60)
+    pygame.display.flip()
 
 pygame.quit()

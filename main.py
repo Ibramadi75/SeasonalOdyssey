@@ -143,6 +143,7 @@ while isRunning:
         player.is_grounded = True
         player.y_current_speed = 0
         player.rect.bottom = collided_platform[0].rect.top
+        player.stop()
 
     elif not collided_platform:
         player.is_grounded = False

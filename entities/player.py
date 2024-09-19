@@ -24,10 +24,10 @@ class Player(pygame.sprite.Sprite):
         self.platforms = platforms  # Liste des plateformes pour la détection de collision
         self.age = 0
 
-    def update(self):
+    def update(self, platforms):
         # Mouvements et collisions sur l'axe X
         self.rect.x += self.x_current_speed
-        self.check_collision_x()
+        self.check_collision_x(platforms)
 
         # Appliquer la gravité seulement si le joueur n'est pas au sol
         if not self.is_grounded:
@@ -68,9 +68,9 @@ class Player(pygame.sprite.Sprite):
     def stop(self):
         self.x_current_speed = 0
 
-    def check_collision_x(self):
+    def check_collision_x(self, platforms):
         """Vérifie et gère les collisions du joueur avec les plateformes sur l'axe X"""
-        for platform in self.platforms:
+        for platform in platforms:
             if self.rect.colliderect(platform.rect):
                 # Si collision en allant à droite
                 if self.x_current_speed > 0:

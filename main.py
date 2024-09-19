@@ -21,8 +21,8 @@ SCALE_FACTOR = 2
 pygame.display.set_caption("Seasonal Odyssey")
 
 GRAVITE = 0.8
-SCROLL_SPEED = 5  
-SCROLL_THRESHOLD = 0.85 * conf_screen.WIDTH_SCREEN 
+SCROLL_SPEED = 1.5  
+SCROLL_THRESHOLD = 0.75 * conf_screen.WIDTH_SCREEN 
 
 PATH = os.path.dirname(__file__)
 
@@ -82,7 +82,18 @@ def draw_visible_tiles(layers_to_draw, scroll_x):
                         # Dessiner la tuile à la position calculée
                         screen.blit(scaled_tile, (screen_x, screen_y))
 
+def add_sprites_to_group(layer_string, group):
+    for layer in tmx_data.visible_layers:
+        if isinstance(layer, pytmx.TiledObjectGroup):
+            if layer.name == layer_string:
+                for obj in layer:
+                    # Crée un rectangle pour chaque objet de collision
+                    rect = pygame.Rect(obj.x* SCALE_FACTOR, obj.y* SCALE_FACTOR, obj.width* SCALE_FACTOR, obj.height* SCALE_FACTOR)
+                    platform = platformer.Platform(rect.width, rect.height, rect.x, rect.y)
+                    group.add(platform)
+                    sprites.add(platform)
 
+    return group
 
 scroll_x_camera = 0
 scroll_x = 0
@@ -91,7 +102,8 @@ clock = pygame.time.Clock()
 isRunning = True
 
 while isRunning:
-    scroll_x = 0 
+    scroll_x = 0
+    actual_platforms = platforms.copy() # add toutes les platformes actuelles à ça
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -109,20 +121,17 @@ while isRunning:
             if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT:
                 player.stop()
 
-    scroll_x_camera += player.x_current_speed if player.rect.right > SCROLL_THRESHOLD else 0
+    scroll_x_camera += player.x_current_speed * SCROLL_SPEED if player.rect.right > SCROLL_THRESHOLD else 0
                 
     if player.rect.right > SCROLL_THRESHOLD:
-        scroll_x = player.x_current_speed
+        scroll_x = player.x_current_speed * SCROLL_SPEED
 
     # Ici on fait défiler toutes les plateformes
     platforms.update(scroll_x)
     if not player.is_grounded:
         player.gravite()
 
-    # player.rect.x += player.x_current_speed
-    # player.rect.y += player.y_current_speed
-
-    player.update()
+    
 
     # Le joueur ne peut pas sortir de l'écran à gauche (limite de la fenêtre du début)
     if player.rect.left < 0:
@@ -138,14 +147,7 @@ while isRunning:
 
         
     # Gestion des collisions entre le joueur et les plateformes
-    collided_platform = pygame.sprite.spritecollide(player, platforms, False)
-    if collided_platform:
-        player.is_grounded = True
-        player.y_current_speed = 0
-        player.rect.bottom = collided_platform[0].rect.top
-
-    elif not collided_platform:
-        player.is_grounded = False
+    
 
     # Vérifier si 5 secondes se sont écoulées pour changer de saison
     current_time = pygame.time.get_ticks()
@@ -173,16 +175,31 @@ while isRunning:
     draw_visible_tiles(season_cycle.SEASON_LAYERS['Spring'], scroll_x_camera)
 
     if current_season == "Spring":
-        draw_visible_tiles(["water_layer", "lava_layer"], scroll_x_camera)
+        draw_visible_tiles(["water_layer", "lava_layer", "tree1_layer"], scroll_x_camera)
+        actual_platforms = add_sprites_to_group("collision_tree1_layer", actual_platforms)
     elif current_season == "Summer":
-        draw_visible_tiles(["lava_layer"], scroll_x_camera)
+        draw_visible_tiles(["lava_layer", "tree2_layer"], scroll_x_camera)
+        actual_platforms = add_sprites_to_group("collision_tree2_layer", actual_platforms)
     elif current_season == "Autumn":
-        draw_visible_tiles(["water_layer", "lava_block_partial_layer"], scroll_x_camera)
+        draw_visible_tiles(["water_layer", "lava_layer", "lava_block_partial_layer", "tree3_layer"], scroll_x_camera)
+        actual_platforms = add_sprites_to_group("collision_tree3_layer", actual_platforms)
     elif current_season == "Winter":
-        draw_visible_tiles(["ice_layer", "lava_block_layer"], scroll_x_camera)
+        draw_visible_tiles(["ice_layer", "lava_block_layer", "tree0_layer"], scroll_x_camera)
+        actual_platforms = add_sprites_to_group("collision_tree0_layer", actual_platforms)
 
     # if current_season in ['Spring', 'Autumn']:
     #     draw_specific_layers(season_cycle.SEASON_LAYERS[current_season], scroll_x, player.rect.x)
+
+    player.update(actual_platforms)
+
+    collided_platform = pygame.sprite.spritecollide(player, actual_platforms, False)
+    if collided_platform:
+        player.is_grounded = True
+        player.y_current_speed = 0
+        player.rect.bottom = collided_platform[0].rect.top
+
+    elif not collided_platform:
+        player.is_grounded = False
 
     pygame.display.flip()
 

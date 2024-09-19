@@ -19,6 +19,7 @@ class Player(pygame.sprite.Sprite):
         self.y_current_speed = 0
         self.move_speed = 6
         self.jump_speed = 15
+        self.age = 8
         
         self.state = 1
         

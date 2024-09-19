@@ -3,6 +3,7 @@ import os
 import config.screen as conf_screen
 import config.colors as colors
 import entities.player as player_config
+from menu import show_menu
 import terrain.Platformer as platformer
 import season_cycle as season_cycle_manager
 import pytmx
@@ -137,97 +138,99 @@ scroll_x = 0
 clock = pygame.time.Clock()
 isRunning = True
 
+is_menu_displayed = show_menu(screen)
+
 while isRunning:
     scroll_x = 0
     actual_platforms = remove_all_but_one_group(platforms, "terrain")
     sprites = remove_all_but_one_group(sprites, "terrain")
+    if is_menu_displayed == "play":
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                isRunning = False
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT:
+                    player.stop()
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT] :
+            player.move_left()
+        if keys[pygame.K_RIGHT] :
+            player.move_right()
+        if keys[pygame.K_SPACE] :
+            player.jump()
+        if keys[pygame.K_t]:
+            added_time_ms  += day_duration_ms // 32
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            isRunning = False
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT:
-                player.stop()
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT] :
-        player.move_left()
-    if keys[pygame.K_RIGHT] :
-        player.move_right()
-    if keys[pygame.K_SPACE] :
-        player.jump()
-    if keys[pygame.K_t]:
-        added_time_ms  += day_duration_ms // 32
+        scroll_x_camera += player.x_current_speed * SCROLL_SPEED if player.rect.right > SCROLL_THRESHOLD else 0
+                    
+        if player.rect.right > SCROLL_THRESHOLD:
+            scroll_x = player.x_current_speed * SCROLL_SPEED
 
-    scroll_x_camera += player.x_current_speed * SCROLL_SPEED if player.rect.right > SCROLL_THRESHOLD else 0
-                
-    if player.rect.right > SCROLL_THRESHOLD:
-        scroll_x = player.x_current_speed * SCROLL_SPEED
+        # Ici on fait défiler toutes les plateformes
+        platforms.update(scroll_x)
 
-    # Ici on fait défiler toutes les plateformes
-    platforms.update(scroll_x)
+        # Le joueur ne peut pas sortir de l'écran à gauche (limite de la fenêtre du début)
+        if player.rect.left < 0:
+            player.rect.left = 0
 
-    # Le joueur ne peut pas sortir de l'écran à gauche (limite de la fenêtre du début)
-    if player.rect.left < 0:
-        player.rect.left = 0
+        # Si le joueur tombe sous l'écran, il meurt et le jeu recommence au TOUT début en remontant meme le background et remettant le joueur en position initiale
+        if player.rect.top > conf_screen.HEIGHT_SCREEN:
+            print('out')
+            player.rect.x = 400
+            player.rect.y = conf_screen.HEIGHT_SCREEN - 400
+            player.is_grounded = False
+            player.y_current_speed = 0
+            player.x_current_speed = 0
 
-    # Si le joueur tombe sous l'écran, il meurt et le jeu recommence au TOUT début en remontant meme le background et remettant le joueur en position initiale
-    if player.rect.top > conf_screen.HEIGHT_SCREEN:
-        print('out')
-        player.rect.x = 400
-        player.rect.y = conf_screen.HEIGHT_SCREEN - 400
-        player.is_grounded = False
-        player.y_current_speed = 0
-        player.x_current_speed = 0
+        # Gestion des collisions entre le joueur et les plateformes
+        
 
-    # Gestion des collisions entre le joueur et les plateformes
-    
+        screen.blit(background_image, (0, 0))
+        
+        #conf_screen.draw_grid(grid, screen)
+        season_cycle.elapsed_time = (pygame.time.get_ticks() // (day_duration_ms)) + (added_time_ms)
+        sprites.draw(screen)
+        
+        # Mettre à jour et afficher le cycle des saisons
+        season_cycle.update_needle_rotation()
+        season_cycle.show_season_cycle()
+        
+        player.update_age(season_cycle.year_elapsed())
 
-    screen.blit(background_image, (0, 0))
-    
-    #conf_screen.draw_grid(grid, screen)
-    season_cycle.elapsed_time = (pygame.time.get_ticks() // (day_duration_ms)) + (added_time_ms)
-    sprites.draw(screen)
-    
-    # Mettre à jour et afficher le cycle des saisons
-    season_cycle.update_needle_rotation()
-    season_cycle.show_season_cycle()
-    
-    player.update_age(season_cycle.year_elapsed())
+        # Afficher les layers de la saison actuelle avec le défilement
+        current_season = season_cycle.current_season()
+        # draw_visible_tiles(season_cycle.SEASON_LAYERS['Spring'], scroll_x_camera)
 
-    # Afficher les layers de la saison actuelle avec le défilement
-    current_season = season_cycle.current_season()
-    # draw_visible_tiles(season_cycle.SEASON_LAYERS['Spring'], scroll_x_camera)
+        if current_season == "Spring":
+            draw_visible_tiles(["water_layer", "lava_layer", "tree1_layer"], scroll_x_camera)
+            actual_platforms = add_sprites_to_group(["collision_tree1_layer"], actual_platforms)
+        elif current_season == "Summer":
+            draw_visible_tiles(["lava_layer", "tree2_layer"], scroll_x_camera)
+            actual_platforms = add_sprites_to_group(["collision_tree2_layer"], actual_platforms)
+        elif current_season == "Autumn":
+            draw_visible_tiles(["water_layer", "lava_layer", "lava_block_partial_layer", "tree3_layer"], scroll_x_camera)
+            actual_platforms = add_sprites_to_group(["collision_tree3_layer", "lava_partial_collision_layer"], actual_platforms)
+        elif current_season == "Winter":
+            draw_visible_tiles(["ice_layer", "lava_block_layer", "tree0_layer"], scroll_x_camera)
+            actual_platforms = add_sprites_to_group(["collision_tree0_layer", "ice_collision_layer", "lava_block_collision_layer"], actual_platforms)
 
-    if current_season == "Spring":
-        draw_visible_tiles(["water_layer", "lava_layer", "tree1_layer"], scroll_x_camera)
-        actual_platforms = add_sprites_to_group(["collision_tree1_layer"], actual_platforms)
-    elif current_season == "Summer":
-        draw_visible_tiles(["lava_layer", "tree2_layer"], scroll_x_camera)
-        actual_platforms = add_sprites_to_group(["collision_tree2_layer"], actual_platforms)
-    elif current_season == "Autumn":
-        draw_visible_tiles(["water_layer", "lava_layer", "lava_block_partial_layer", "tree3_layer"], scroll_x_camera)
-        actual_platforms = add_sprites_to_group(["collision_tree3_layer", "lava_partial_collision_layer"], actual_platforms)
-    elif current_season == "Winter":
-        draw_visible_tiles(["ice_layer", "lava_block_layer", "tree0_layer"], scroll_x_camera)
-        actual_platforms = add_sprites_to_group(["collision_tree0_layer", "ice_collision_layer", "lava_block_collision_layer"], actual_platforms)
+        draw_visible_tiles(season_cycle.SEASON_LAYERS[current_season], scroll_x_camera)
 
-    draw_visible_tiles(season_cycle.SEASON_LAYERS[current_season], scroll_x_camera)
+        player.show_age(screen)
+        player.is_jumping = False
 
-    player.show_age(screen)
-    player.is_jumping = False
+        player.update(actual_platforms)
+        # actual_platforms.draw(screen)
 
-    player.update(actual_platforms)
-    # actual_platforms.draw(screen)
+        collided_platform = pygame.sprite.spritecollide(player, actual_platforms, False)
+        if collided_platform:
+            player.is_grounded = True
+            player.y_current_speed = 0
+            player.rect.bottom = collided_platform[0].rect.top
 
-    collided_platform = pygame.sprite.spritecollide(player, actual_platforms, False)
-    if collided_platform:
-        player.is_grounded = True
-        player.y_current_speed = 0
-        player.rect.bottom = collided_platform[0].rect.top
-
-    elif not collided_platform:
-        player.is_grounded = False
-    clock.tick(60)
-    pygame.display.flip()
+        elif not collided_platform:
+            player.is_grounded = False
+        clock.tick(60)
+        pygame.display.flip()
 
 pygame.quit()

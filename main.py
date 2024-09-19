@@ -21,7 +21,7 @@ SCALE_FACTOR = 2
 pygame.display.set_caption("Seasonal Odyssey")
 
 GRAVITE = 0.8
-SCROLL_SPEED = 5  
+SCROLL_SPEED = 1.5  
 SCROLL_THRESHOLD = 0.35 * conf_screen.WIDTH_SCREEN 
 
 PATH = os.path.dirname(__file__)
@@ -52,7 +52,6 @@ for layer in tmx_data.visible_layers:
                 surface = pygame.Surface((rect.width, rect.height), pygame.SRCALPHA)
                 platform.image = surface
                 platforms.add(platform)
-                sprites.add(platform)
 
 # Fonction pour dessiner les couches spécifiques en tenant compte du défilement horizontal
 def draw_visible_tiles(layers_to_draw, scroll_x):
@@ -89,7 +88,37 @@ def draw_visible_tiles(layers_to_draw, scroll_x):
                         # Dessiner la tuile à la position calculée
                         screen.blit(scaled_tile, (screen_x, screen_y))
 
+def add_sprites_to_group(layer_string_list, group):
+    for layer in tmx_data.visible_layers:
+        if isinstance(layer, pytmx.TiledObjectGroup):
+            if layer.name in layer_string_list:
+                for obj in layer:
+                    # Crée un rectangle pour chaque objet de collision
+                    rect = pygame.Rect(
+                        (obj.x * SCALE_FACTOR) - scroll_x_camera,  # Appliquer le décalage de la caméra sur l'axe X
+                        obj.y * SCALE_FACTOR, 
+                        obj.width * SCALE_FACTOR, 
+                        obj.height * SCALE_FACTOR
+                    )
+                    platform = platformer.Platform(rect.width, rect.height, rect.x, rect.y, layer.name)
+                    group.add(platform)
 
+    return group
+
+def remove_sprites_to_group(layer, group):
+    for platform in group:
+        if platform.id == layer:
+            group.remove(platform)
+            sprites.remove(platform)
+
+    return group
+
+def remove_all_but_one_group(group, group_to_keep):
+    for platform in group:
+        if platform.id != group_to_keep:
+            group.remove(platform)
+
+    return group
 
 scroll_x_camera = 0
 scroll_x = 0
@@ -98,7 +127,9 @@ clock = pygame.time.Clock()
 isRunning = True
 
 while isRunning:
-    scroll_x = 0 
+    scroll_x = 0
+    actual_platforms = remove_all_but_one_group(platforms, "terrain")
+    sprites = remove_all_but_one_group(sprites, "terrain")
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -114,25 +145,21 @@ while isRunning:
     if keys[pygame.K_SPACE] :
         player.jump()
 
-    scroll_x_camera += player.x_current_speed if player.rect.right > SCROLL_THRESHOLD else 0
+    scroll_x_camera += player.x_current_speed * SCROLL_SPEED if player.rect.right > SCROLL_THRESHOLD else 0
                 
     if player.rect.right > SCROLL_THRESHOLD:
-        scroll_x = player.x_current_speed
+        scroll_x = player.x_current_speed * SCROLL_SPEED
 
     # Ici on fait défiler toutes les plateformes
     platforms.update(scroll_x)
 
-    # player.rect.x += player.x_current_speed
-    # player.rect.y += player.y_current_speed
-
-    player.update()
-    
     # Le joueur ne peut pas sortir de l'écran à gauche (limite de la fenêtre du début)
     if player.rect.left < 0:
         player.rect.left = 0
 
     # Si le joueur tombe sous l'écran, il meurt et le jeu recommence au TOUT début en remontant meme le background et remettant le joueur en position initiale
     if player.rect.top > conf_screen.HEIGHT_SCREEN:
+        print('out')
         player.rect.x = 400
         player.rect.y = conf_screen.HEIGHT_SCREEN - 400
         player.is_grounded = False
@@ -140,14 +167,7 @@ while isRunning:
         player.x_current_speed = 0
 
     # Gestion des collisions entre le joueur et les plateformes
-    collided_platform = pygame.sprite.spritecollide(player, platforms, False)
-    if collided_platform:
-        player.is_grounded = True
-        player.y_current_speed = 0
-        player.rect.bottom = collided_platform[0].rect.top
-
-    elif not collided_platform:
-        player.is_grounded = False
+    
 
     # Vérifier si 5 secondes se sont écoulées pour changer de saison
     current_time = pygame.time.get_ticks()
@@ -170,15 +190,40 @@ while isRunning:
     # Afficher la saison actuelle
     current_season = season_cycle.current_season()
 
-    max_scroll = (tmx_data.width * tmx_data.tilewidth * SCALE_FACTOR) - conf_screen.WIDTH_SCREEN
-    scroll_x = min(scroll_x, max_scroll)
-
     # Afficher les layers de la saison actuelle avec le défilement
     current_season = season_cycle.current_season()
     draw_visible_tiles(season_cycle.SEASON_LAYERS['Spring'], scroll_x_camera)
+
+    if current_season == "Spring":
+        draw_visible_tiles(["water_layer", "lava_layer", "tree1_layer"], scroll_x_camera)
+        actual_platforms = add_sprites_to_group(["collision_tree1_layer"], actual_platforms)
+    elif current_season == "Summer":
+        draw_visible_tiles(["lava_layer", "tree2_layer"], scroll_x_camera)
+        actual_platforms = add_sprites_to_group(["collision_tree2_layer"], actual_platforms)
+    elif current_season == "Autumn":
+        draw_visible_tiles(["water_layer", "lava_layer", "lava_block_partial_layer", "tree3_layer"], scroll_x_camera)
+        actual_platforms = add_sprites_to_group(["collision_tree3_layer", "lava_partial_collision_layer"], actual_platforms)
+    elif current_season == "Winter":
+        draw_visible_tiles(["ice_layer", "lava_block_layer", "tree0_layer"], scroll_x_camera)
+        actual_platforms = add_sprites_to_group(["collision_tree0_layer", "ice_collision_layer", "lava_block_collision_layer"], actual_platforms)
+
     # if current_season in ['Spring', 'Autumn']:
     #     draw_specific_layers(season_cycle.SEASON_LAYERS[current_season], scroll_x, player.rect.x)
     player.show_age(screen)
+    player.is_jumping = False
+
+    player.update(actual_platforms)
+    # actual_platforms.draw(screen)
+
+    collided_platform = pygame.sprite.spritecollide(player, actual_platforms, False)
+    if collided_platform:
+        player.is_grounded = True
+        player.y_current_speed = 0
+        player.rect.bottom = collided_platform[0].rect.top
+
+    elif not collided_platform:
+        player.is_grounded = False
+
     pygame.display.flip()
 
     if (player.state == 2):

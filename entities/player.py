@@ -44,11 +44,12 @@ class Player(pygame.sprite.Sprite):
         self.platforms = platforms  # Liste des plateformes pour la détection de collision
         self.age = 0
         self.is_jumping = False
+        self.id = "terrain"
 
-    def update(self):
+    def update(self, platforms):
         # Mouvements et collisions sur l'axe X
         self.rect.x += self.x_current_speed
-        self.check_collision_x()
+        self.check_collision_x(platforms)
 
         # Appliquer la gravité seulement si le joueur n'est pas au sol
         if not self.is_grounded:
@@ -67,11 +68,11 @@ class Player(pygame.sprite.Sprite):
             self.rect.left = 0
 
         # Si le joueur tombe en dehors de l'écran, il est remis au sol
-        if self.rect.bottom > conf_screen.HEIGHT_SCREEN:
-            self.rect.bottom = conf_screen.HEIGHT_SCREEN
-            self.is_grounded = True
-            self.y_current_speed = 0
-
+        # if self.rect.bottom > conf_screen.HEIGHT_SCREEN:
+        #     self.rect.bottom = conf_screen.HEIGHT_SCREEN
+        #     self.is_grounded = True
+        #     self.y_current_speed = 0
+        
         self.update_state()
         self.image = self.get_player_image()
 
@@ -100,14 +101,14 @@ class Player(pygame.sprite.Sprite):
         self.x_current_speed = 0
         self.current_action = Action.IDLE
 
-    def check_collision_x(self):
+    def check_collision_x(self, platforms):
         """Vérifie et gère les collisions du joueur avec les plateformes sur l'axe X"""
-        for platform in self.platforms:
-            if self.rect.colliderect(platform.rect):
+        for collision in platforms:
+            if self.rect.colliderect(collision.rect):
                 if self.x_current_speed > 0:
-                    self.rect.right = platform.rect.left
+                    self.rect.right = collision.rect.left
                 elif self.x_current_speed < 0:
-                    self.rect.left = platform.rect.right
+                    self.rect.left = collision.rect.right
 
     def check_collision_y(self):
         """Vérifie et gère les collisions du joueur avec les plateformes sur l'axe Y"""

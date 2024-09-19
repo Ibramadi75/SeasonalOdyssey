@@ -38,10 +38,12 @@ class Player(pygame.sprite.Sprite):
         self.x_current_speed = 0
         self.y_current_speed = 0
         self.move_speed = 6
-        self.jump_speed = 15
+        self.jump_speed = 12
         self.age = 8
         self.state = Age.YOUNG
         self.platforms = platforms  # Liste des plateformes pour la détection de collision
+        self.age = 0
+        self.is_jumping = False
 
     def update(self):
         # Mouvements et collisions sur l'axe X
@@ -102,13 +104,9 @@ class Player(pygame.sprite.Sprite):
         """Vérifie et gère les collisions du joueur avec les plateformes sur l'axe X"""
         for platform in self.platforms:
             if self.rect.colliderect(platform.rect):
-                # Si collision en allant à droite
                 if self.x_current_speed > 0:
-                    print("collision droite")
                     self.rect.right = platform.rect.left
-                # Si collision en allant à gauche
                 elif self.x_current_speed < 0:
-                    print("collision gauche")
                     self.rect.left = platform.rect.right
 
     def check_collision_y(self):

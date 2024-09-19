@@ -22,7 +22,7 @@ pygame.display.set_caption("Seasonal Odyssey")
 
 GRAVITE = 0.8
 SCROLL_SPEED = 5  
-SCROLL_THRESHOLD = 0.85 * conf_screen.WIDTH_SCREEN 
+SCROLL_THRESHOLD = 0.35 * conf_screen.WIDTH_SCREEN 
 
 PATH = os.path.dirname(__file__)
 
@@ -44,6 +44,8 @@ for layer in tmx_data.visible_layers:
                 # Crée un rectangle pour chaque objet de collision
                 rect = pygame.Rect(obj.x* SCALE_FACTOR, obj.y* SCALE_FACTOR, obj.width* SCALE_FACTOR, obj.height* SCALE_FACTOR)
                 platform = platformer.Platform(rect.width, rect.height, rect.x, rect.y)
+                surface = pygame.Surface((rect.width, rect.height), pygame.SRCALPHA)
+                platform.image = surface
                 platforms.add(platform)
                 sprites.add(platform)
 
@@ -96,18 +98,16 @@ while isRunning:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             isRunning = False
-
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                player.jump()
-            if event.key == pygame.K_RIGHT:
-                player.move_right()
-            if event.key == pygame.K_LEFT:
-                player.move_left()
-
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT:
                 player.stop()
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT] :
+        player.move_left()
+    if keys[pygame.K_RIGHT] :
+        player.move_right()
+    if keys[pygame.K_SPACE] :
+        player.jump()
 
     scroll_x_camera += player.x_current_speed if player.rect.right > SCROLL_THRESHOLD else 0
                 
@@ -116,14 +116,12 @@ while isRunning:
 
     # Ici on fait défiler toutes les plateformes
     platforms.update(scroll_x)
-    if not player.is_grounded:
-        player.gravite()
 
     # player.rect.x += player.x_current_speed
     # player.rect.y += player.y_current_speed
 
     player.update()
-
+    
     # Le joueur ne peut pas sortir de l'écran à gauche (limite de la fenêtre du début)
     if player.rect.left < 0:
         player.rect.left = 0
@@ -136,7 +134,6 @@ while isRunning:
         player.y_current_speed = 0
         player.x_current_speed = 0
 
-        
     # Gestion des collisions entre le joueur et les plateformes
     collided_platform = pygame.sprite.spritecollide(player, platforms, False)
     if collided_platform:
@@ -178,8 +175,7 @@ while isRunning:
     player.show_age(screen)
     # if current_season in ['Spring', 'Autumn']:
     #     draw_specific_layers(season_cycle.SEASON_LAYERS[current_season], scroll_x, player.rect.x)
-    # pygame.draw.rect(screen, colors.RED, player.rect)
-    
+    player.show_age(screen)
     pygame.display.flip()
 
     if (player.state == 2):

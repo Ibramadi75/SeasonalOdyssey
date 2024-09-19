@@ -116,14 +116,12 @@ while isRunning:
 
     # Ici on fait défiler toutes les plateformes
     platforms.update(scroll_x)
-    if not player.is_grounded:
-        player.gravite()
 
     # player.rect.x += player.x_current_speed
     # player.rect.y += player.y_current_speed
 
     player.update()
-
+    
     # Le joueur ne peut pas sortir de l'écran à gauche (limite de la fenêtre du début)
     if player.rect.left < 0:
         player.rect.left = 0
@@ -176,7 +174,7 @@ while isRunning:
     draw_visible_tiles(season_cycle.SEASON_LAYERS['Spring'], scroll_x_camera)
     # if current_season in ['Spring', 'Autumn']:
     #     draw_specific_layers(season_cycle.SEASON_LAYERS[current_season], scroll_x, player.rect.x)
-
+    player.show_age(screen)
     pygame.display.flip()
 
     if (player.state == 2):

@@ -39,7 +39,7 @@ class Player(pygame.sprite.Sprite):
         self.x_current_speed = 0
         self.y_current_speed = 0
         self.move_speed = 6
-        self.jump_speed = 15
+        self.jump_speed = 12
         self.age = 8
         self.state = Age.YOUNG
         self.platforms = platforms  # Liste des plateformes pour la détection de collision

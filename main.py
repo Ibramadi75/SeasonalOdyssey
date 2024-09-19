@@ -44,6 +44,8 @@ for layer in tmx_data.visible_layers:
                 # Crée un rectangle pour chaque objet de collision
                 rect = pygame.Rect(obj.x* SCALE_FACTOR, obj.y* SCALE_FACTOR, obj.width* SCALE_FACTOR, obj.height* SCALE_FACTOR)
                 platform = platformer.Platform(rect.width, rect.height, rect.x, rect.y)
+                surface = pygame.Surface((rect.width, rect.height), pygame.SRCALPHA)
+                platform.image = surface
                 platforms.add(platform)
 
 # Fonction pour dessiner les couches spécifiques en tenant compte du défilement horizontal

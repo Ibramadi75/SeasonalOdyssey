@@ -14,12 +14,12 @@ class Action(Enum):
     JUMP = "jump"
     IDLE = "idle"
     DIE = "death"
-    
+
 class Age(Enum):
     YOUNG = "young"
     ADULT = "adult"
     OLD = "old"
-    
+
 class Direction(Enum):
     LEFT = "left"
     RIGHT = "right"
@@ -31,9 +31,9 @@ class Player(pygame.sprite.Sprite):
         self.state = Age.YOUNG
         self.direction = Direction.RIGHT
         self.image = PLAYER_IMG
-        self.rect = self.image.get_rect()
-        self.rect.x = conf_screen.CELL_SIZE * 2
-        self.rect.y = conf_screen.HEIGHT_SCREEN - conf_screen.CELL_SIZE * 4
+        # Créer le rectangle en utilisant les attributs de l'image
+        self.rect = pygame.Rect(0,0,0,0)
+
         self.is_grounded = False
         self.x_current_speed = 0
         self.y_current_speed = 0
@@ -54,11 +54,11 @@ class Player(pygame.sprite.Sprite):
         # Appliquer la gravité seulement si le joueur n'est pas au sol
         if not self.is_grounded:
             self.gravite()
-        
+
         if self.is_grounded and self.current_action == Action.JUMP:
             self.current_action = Action.IDLE
-        
-        self.rect.x += self.x_current_speed
+
+        # self.rect.x += self.x_current_speed
         self.rect.y += self.y_current_speed
 
         # Gérer les limites de l'écran
@@ -126,37 +126,48 @@ class Player(pygame.sprite.Sprite):
                     print("collision haut")
                     self.rect.top = platform.rect.bottom
                     self.y_current_speed = 0
-                    
+
     def get_player_image(self) -> pygame.Surface:
-        # The old player doesn't have a jump animation, so in that case we use the idle animation
+        # Charger l'image appropriée en fonction de l'état et de l'action
         if self.current_action == Action.JUMP and self.state == Age.OLD:
             path = "assets/player/old/idle/"
             files_number = len(list(Path(path).glob("*.png")))
-            image_counter = (((pygame.time.get_ticks() // 100)) % files_number) + 1
-            image = pygame.image.load(
-                path + "old-idle-" + str(image_counter) + ".png"
-            )
+            image_counter = (((pygame.time.get_ticks()//100))%files_number)+1
+            image = pygame.image.load(path + "old-idle-" + str(image_counter) + ".png")
         else:
             path = "assets/player/" + self.state.value + "/" + self.current_action.value + "/"
             files_number = len(list(Path(path).glob("*.png")))
-            image_counter = (((pygame.time.get_ticks() // 100)) % files_number) + 1
-            image = pygame.image.load(
-                path + self.state.value + "-" + self.current_action.value + "-" + str(image_counter) + ".png"
-            )
+            image_counter = (((pygame.time.get_ticks()//100))%files_number)+1
+            image = pygame.image.load(path + self.state.value + "-" + self.current_action.value + "-" + str(image_counter) + ".png")
 
-        old_center = self.rect.center  # Conserver le centre actuel du joueur
-        self.image = image  # Mettre à jour l'image du joueur avec la nouvelle
+        # Sauvegarder le centre actuel du rect de collision pour conserver sa position après redimensionnement
+        old_center = self.rect.center
 
-        # Mettre à jour les dimensions du rectangle selon la nouvelle image
-        self.rect = self.image.get_rect() 
-        self.rect.center = old_center  # Recentrer le rectangle par rapport à son ancienne position
+        # Récupérer le rectangle de l'image
+        original_rect = image.get_rect()
 
-        # Si la direction est à gauche, on retourne l'image horizontalement
+        # Créer un nouveau rect pour le joueur, deux fois plus étroit que l'image
+        new_width = original_rect.width * 0.5
+        self.rect = pygame.Rect(0, 0, new_width, original_rect.height)
+
+        # Centrer l'image par rapport au rect de collision
+        image_offset_x = (original_rect.width - self.rect.width) // 2
+
+        # Créer une surface transparente pour le sprite
+        blitted_image = pygame.Surface((self.rect.width, original_rect.height), pygame.SRCALPHA)
+        blitted_image.blit(image, (-image_offset_x, 0))
+
+        # Assigner l'image avec l'offset
+        self.image = blitted_image
+
+        # Réappliquer le centre sauvegardé
+        self.rect.center = old_center
+
+        # Retourner l'image éventuellement retournée horizontalement (pour la direction)
         if self.direction == Direction.LEFT:
             self.image = pygame.transform.flip(self.image, True, False)
 
         return self.image
-
 
     # Reste du code inchangé
     def update_age(self, year_elapsed):

@@ -4,7 +4,6 @@ import config.screen as conf_screen
 from enum import Enum
 from pathlib import Path
 
-
 GRAVITE = .8
 
 PLAYER_IMG = pygame.Surface((50, 50))
@@ -45,6 +44,7 @@ class Player(pygame.sprite.Sprite):
         self.platforms = platforms  # Liste des plateformes pour la détection de collision
         self.age = 0
         self.is_jumping = False
+        self.id = "terrain"
 
     def update(self, platforms):
         # Mouvements et collisions sur l'axe X
@@ -68,10 +68,10 @@ class Player(pygame.sprite.Sprite):
             self.rect.left = 0
 
         # Si le joueur tombe en dehors de l'écran, il est remis au sol
-        if self.rect.bottom > conf_screen.HEIGHT_SCREEN:
-            self.rect.bottom = conf_screen.HEIGHT_SCREEN
-            self.is_grounded = True
-            self.y_current_speed = 0
+        # if self.rect.bottom > conf_screen.HEIGHT_SCREEN:
+        #     self.rect.bottom = conf_screen.HEIGHT_SCREEN
+        #     self.is_grounded = True
+        #     self.y_current_speed = 0
         
         self.update_state()
         self.image = self.get_player_image()
@@ -103,12 +103,12 @@ class Player(pygame.sprite.Sprite):
 
     def check_collision_x(self, platforms):
         """Vérifie et gère les collisions du joueur avec les plateformes sur l'axe X"""
-        for platform in platforms:
-            if self.rect.colliderect(platform.rect):
+        for collision in platforms:
+            if self.rect.colliderect(collision.rect):
                 if self.x_current_speed > 0:
-                    self.rect.right = platform.rect.left
+                    self.rect.right = collision.rect.left
                 elif self.x_current_speed < 0:
-                    self.rect.left = platform.rect.right
+                    self.rect.left = collision.rect.right
 
     def check_collision_y(self):
         """Vérifie et gère les collisions du joueur avec les plateformes sur l'axe Y"""
@@ -128,30 +128,35 @@ class Player(pygame.sprite.Sprite):
                     self.y_current_speed = 0
                     
     def get_player_image(self) -> pygame.Surface:
-        
         # The old player doesn't have a jump animation, so in that case we use the idle animation
         if self.current_action == Action.JUMP and self.state == Age.OLD:
             path = "assets/player/old/idle/"
             files_number = len(list(Path(path).glob("*.png")))
-            image_counter = (((pygame.time.get_ticks()//100))%files_number)+1
+            image_counter = (((pygame.time.get_ticks() // 100)) % files_number) + 1
             image = pygame.image.load(
                 path + "old-idle-" + str(image_counter) + ".png"
             )
         else:
             path = "assets/player/" + self.state.value + "/" + self.current_action.value + "/"
             files_number = len(list(Path(path).glob("*.png")))
-            image_counter = (((pygame.time.get_ticks()//100))%files_number)+1
+            image_counter = (((pygame.time.get_ticks() // 100)) % files_number) + 1
             image = pygame.image.load(
                 path + self.state.value + "-" + self.current_action.value + "-" + str(image_counter) + ".png"
             )
-            
-        old_center = self.rect.center
-        self.rect = image.get_rect() 
-        self.rect.center = old_center
-        
+
+        old_center = self.rect.center  # Conserver le centre actuel du joueur
+        self.image = image  # Mettre à jour l'image du joueur avec la nouvelle
+
+        # Mettre à jour les dimensions du rectangle selon la nouvelle image
+        self.rect = self.image.get_rect() 
+        self.rect.center = old_center  # Recentrer le rectangle par rapport à son ancienne position
+
+        # Si la direction est à gauche, on retourne l'image horizontalement
         if self.direction == Direction.LEFT:
-            image = pygame.transform.flip(image, True, False)
-        return image
+            self.image = pygame.transform.flip(self.image, True, False)
+
+        return self.image
+
 
     # Reste du code inchangé
     def update_age(self, year_elapsed):

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="150" height="24" tilewidth="16" tileheight="16" infinite="0" nextlayerid="19" nextobjectid="66">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="150" height="24" tilewidth="16" tileheight="16" infinite="0" nextlayerid="21" nextobjectid="75">
  <tileset firstgid="1" name="spring_terrain" tilewidth="16" tileheight="16" tilecount="170" columns="17">
   <image source="assets/spring/Terrain (16 x 16).png" width="272" height="160"/>
   <tile id="52">
@@ -243,6 +243,19 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,708,708,708,708,708,708,708,708,708,708,708,708,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
+ <objectgroup id="19" name="lava_partial_collision_layer">
+  <object id="66" x="1599.75" y="304.25" width="31.75" height="15.75"/>
+  <object id="67" x="1632" y="287.75" width="15.5" height="15.75"/>
+  <object id="68" x="1647.75" y="303.75" width="15.75" height="15.75"/>
+  <object id="69" x="1664" y="288.5" width="15.75" height="15"/>
+  <object id="70" x="1695.75" y="303.75" width="16" height="16"/>
+  <object id="71" x="1711.75" y="288.25" width="15.75" height="15.5"/>
+  <object id="72" x="1760" y="303.75" width="15.5" height="16"/>
+  <object id="73" x="1776" y="288.25" width="15.5" height="15.75"/>
+ </objectgroup>
+ <objectgroup id="20" name="lava_block_collision_layer">
+  <object id="74" x="1600" y="288" width="191.333" height="16.3333"/>
+ </objectgroup>
  <layer id="6" name="ice_layer" width="150" height="24">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

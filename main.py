@@ -34,7 +34,7 @@ last_season_change = pygame.time.get_ticks()
 sprites = pygame.sprite.Group()
 platforms = pygame.sprite.Group()
 
-player = player_config.Player()
+player = player_config.Player(platforms)
 sprites.add(player)
 
 for layer in tmx_data.visible_layers:
@@ -143,7 +143,6 @@ while isRunning:
         player.is_grounded = True
         player.y_current_speed = 0
         player.rect.bottom = collided_platform[0].rect.top
-        player.stop()
 
     elif not collided_platform:
         player.is_grounded = False

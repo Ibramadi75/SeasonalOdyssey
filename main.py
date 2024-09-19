@@ -38,6 +38,11 @@ SCROLL_THRESHOLD = 0.35 * conf_screen.WIDTH_SCREEN
 
 PATH = os.path.dirname(__file__)
 
+
+# Charger l'image
+background_image = pygame.image.load('assets/winter/background/background.png').convert()
+background_image = pygame.transform.scale(background_image, (conf_screen.WIDTH_SCREEN, conf_screen.HEIGHT_SCREEN))
+
 SEASONS = ["Printemps", "Été", "Automne", "Hiver"]
 current_season_index = 0
 season_change_time = 5000  # 5 secondes en millisecondes
@@ -182,9 +187,9 @@ while isRunning:
         current_season_index = (current_season_index + 1) % len(SEASONS)
         last_season_change = current_time
 
-    screen.fill(colors.WHITE)
+    screen.blit(background_image, (0, 0))
     
-    conf_screen.draw_grid(grid, screen)
+    #conf_screen.draw_grid(grid, screen)
 
     sprites.draw(screen)
     

@@ -11,7 +11,7 @@ import pytmx
 pygame.mixer.init()
 
 # Load the music file
-music_path = 'music/sound_theme.mp3'
+music_path = 'music/sound_theme2.mp3'
 if os.path.exists(music_path):
     print("Music file found!")
     pygame.mixer.music.load(music_path)

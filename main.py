@@ -22,7 +22,7 @@ pygame.display.set_caption("Seasonal Odyssey")
 
 GRAVITE = 0.8
 SCROLL_SPEED = 5  
-SCROLL_THRESHOLD = 0.85 * conf_screen.WIDTH_SCREEN 
+SCROLL_THRESHOLD = 0.35 * conf_screen.WIDTH_SCREEN 
 
 PATH = os.path.dirname(__file__)
 
@@ -134,7 +134,6 @@ while isRunning:
         player.y_current_speed = 0
         player.x_current_speed = 0
 
-        
     # Gestion des collisions entre le joueur et les plateformes
     collided_platform = pygame.sprite.spritecollide(player, platforms, False)
     if collided_platform:
@@ -175,6 +174,7 @@ while isRunning:
     # if current_season in ['Spring', 'Autumn']:
     #     draw_specific_layers(season_cycle.SEASON_LAYERS[current_season], scroll_x, player.rect.x)
     player.show_age(screen)
+    player.is_jumping = False
     pygame.display.flip()
 
     if (player.state == 2):

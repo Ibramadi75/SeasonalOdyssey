@@ -13,17 +13,16 @@ class Player(pygame.sprite.Sprite):
         self.image = PLAYER_IMG
         self.rect = self.image.get_rect()
         self.rect.x = conf_screen.CELL_SIZE*2
-        self.rect.y = conf_screen.HEIGHT_SCREEN - conf_screen.CELL_SIZE*4
+        self.rect.y = conf_screen.HEIGHT_SCREEN - conf_screen.CELL_SIZE*6
         self.is_grounded = False
         self.x_current_speed = 0
         self.y_current_speed = 0
         self.move_speed = 6
         self.jump_speed = 15
-        self.age = 8
         
         self.state = 1
         
-        self.age = 0
+        self.age = 8
         
     def update(self):        
         if not self.is_grounded:
@@ -80,7 +79,7 @@ class Player(pygame.sprite.Sprite):
     def update_appearance(self):
         if (self.state == 1):
             self.image = pygame.Surface((50, 50))
-            self.image.fill(colors.SOFT_WHITE)
+            self.image.fill(colors.RED)
         elif (self.state == 2):
             self.image = pygame.Surface((50, 80))
             self.image.fill(colors.GRAY)

@@ -169,12 +169,19 @@ while isRunning:
     # Afficher la saison actuelle
     current_season = season_cycle.current_season()
 
-    max_scroll = (tmx_data.width * tmx_data.tilewidth * SCALE_FACTOR) - conf_screen.WIDTH_SCREEN
-    scroll_x = min(scroll_x, max_scroll)
-
     # Afficher les layers de la saison actuelle avec le défilement
     current_season = season_cycle.current_season()
     draw_visible_tiles(season_cycle.SEASON_LAYERS['Spring'], scroll_x_camera)
+
+    if current_season == "Spring":
+        draw_visible_tiles(["water_layer", "lava_layer"], scroll_x_camera)
+    elif current_season == "Summer":
+        draw_visible_tiles(["lava_layer"], scroll_x_camera)
+    elif current_season == "Autumn":
+        draw_visible_tiles(["water_layer", "lava_block_partial_layer"], scroll_x_camera)
+    elif current_season == "Winter":
+        draw_visible_tiles(["ice_layer", "lava_block_layer"], scroll_x_camera)
+
     # if current_season in ['Spring', 'Autumn']:
     #     draw_specific_layers(season_cycle.SEASON_LAYERS[current_season], scroll_x, player.rect.x)
 

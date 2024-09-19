@@ -8,6 +8,18 @@ import season_cycle as season_cycle_manager
 import pytmx
 
 # os.environ['SDL_VIDEO_WINDOW_POS'] = f"{conf_screen.PADDING},{conf_screen.PADDING}"
+pygame.mixer.init()
+
+# Load the music file
+music_path = 'music/sound_theme2.mp3'
+if os.path.exists(music_path):
+    print("Music file found!")
+    pygame.mixer.music.load(music_path)
+else:
+    print("Music file not found!")
+
+pygame.mixer.music.set_volume(0.5)  # Set volume to 50%
+pygame.mixer.music.play(-1)
 
 screen = pygame.display.set_mode((conf_screen.WIDTH_SCREEN, conf_screen.HEIGHT_SCREEN))
 
@@ -25,6 +37,11 @@ SCROLL_SPEED = 1.5
 SCROLL_THRESHOLD = 0.35 * conf_screen.WIDTH_SCREEN 
 
 PATH = os.path.dirname(__file__)
+
+
+# Charger l'image
+background_image = pygame.image.load('assets/winter/background/background.png').convert()
+background_image = pygame.transform.scale(background_image, (conf_screen.WIDTH_SCREEN, conf_screen.HEIGHT_SCREEN))
 
 SEASONS = ["Printemps", "Été", "Automne", "Hiver"]
 current_season_index = 0
@@ -170,9 +187,9 @@ while isRunning:
         current_season_index = (current_season_index + 1) % len(SEASONS)
         last_season_change = current_time
 
-    screen.fill(colors.WHITE)
+    screen.blit(background_image, (0, 0))
     
-    conf_screen.draw_grid(grid, screen)
+    #conf_screen.draw_grid(grid, screen)
 
     sprites.draw(screen)
     

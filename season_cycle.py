@@ -61,5 +61,5 @@ class SeasonCycle:
         current_season_index = (self.elapsed_time // SeasonCycle.SEASON_DURATION) % SeasonCycle.NUMBER_OF_SEASONS
         return SeasonCycle.SEASONS[current_season_index]
 
-    def year_elapsed(self, elapsed_time):
-        return (elapsed_time // SeasonCycle.TOTAL_TIME_PER_YEAR)
+    def year_elapsed(self):
+        return (self.elapsed_time // SeasonCycle.TOTAL_TIME_PER_YEAR)

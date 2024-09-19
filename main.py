@@ -7,9 +7,7 @@ import terrain.Platformer as platformer
 import season_cycle as season_cycle_manager
 import pytmx
 
-
-PADDING = 50  
-os.environ['SDL_VIDEO_WINDOW_POS'] = f"{PADDING},{PADDING}"
+# os.environ['SDL_VIDEO_WINDOW_POS'] = f"{conf_screen.PADDING},{conf_screen.PADDING}"
 
 screen = pygame.display.set_mode((conf_screen.WIDTH_SCREEN, conf_screen.HEIGHT_SCREEN))
 
@@ -32,7 +30,6 @@ SEASONS = ["Printemps", "Été", "Automne", "Hiver"]
 current_season_index = 0
 season_change_time = 5000  # 5 secondes en millisecondes
 last_season_change = pygame.time.get_ticks()
-
 
 sprites = pygame.sprite.Group()
 platforms = pygame.sprite.Group()
@@ -103,10 +100,9 @@ while isRunning:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 player.jump()
-            elif event.key == pygame.K_RIGHT:
+            if event.key == pygame.K_RIGHT:
                 player.move_right()
-                
-            elif event.key == pygame.K_LEFT:
+            if event.key == pygame.K_LEFT:
                 player.move_left()
 
         if event.type == pygame.KEYUP:
@@ -166,6 +162,8 @@ while isRunning:
     # Mettre à jour et afficher le cycle des saisons
     season_cycle.update_needle_rotation()
     season_cycle.show_season_cycle()
+    
+    player.update_age(season_cycle.year_elapsed())
 
     # Afficher la saison actuelle
     current_season = season_cycle.current_season()
@@ -181,7 +179,10 @@ while isRunning:
 
     pygame.display.flip()
 
-    season_cycle.elapsed_time = pygame.time.get_ticks() // (1000//8)
+    if (player.state == 2):
+        season_cycle.elapsed_time = pygame.time.get_ticks() // (1000//64)
+    else:
+        season_cycle.elapsed_time = pygame.time.get_ticks() // (1000//32)
     clock.tick(60)
 
 pygame.quit()

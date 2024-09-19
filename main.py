@@ -174,9 +174,12 @@ while isRunning:
     # Afficher les layers de la saison actuelle avec le défilement
     current_season = season_cycle.current_season()
     draw_visible_tiles(season_cycle.SEASON_LAYERS['Spring'], scroll_x_camera)
+    
+    player.show_age(screen)
     # if current_season in ['Spring', 'Autumn']:
     #     draw_specific_layers(season_cycle.SEASON_LAYERS[current_season], scroll_x, player.rect.x)
-
+    # pygame.draw.rect(screen, colors.RED, player.rect)
+    
     pygame.display.flip()
 
     if (player.state == 2):

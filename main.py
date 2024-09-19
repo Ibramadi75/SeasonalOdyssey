@@ -50,23 +50,52 @@ for layer in tmx_data.visible_layers:
                 platforms.add(platform)
                 sprites.add(platform)
 
-def draw_specific_layers(layers_to_draw):
+# Fonction pour dessiner les couches spécifiques en tenant compte du défilement horizontal
+def draw_visible_tiles(layers_to_draw, scroll_x):
+    # Taille d'une tuile
+    tile_width = tmx_data.tilewidth * SCALE_FACTOR
+    tile_height = tmx_data.tileheight * SCALE_FACTOR
+
+    # Taille de l'écran en nombre de tuiles
+    tiles_in_screen_width = conf_screen.WIDTH_SCREEN // tile_width + 1
+    tiles_in_screen_height = conf_screen.HEIGHT_SCREEN // tile_height
+
+    # Position du joueur dans la grille des tuiles
+    start_x = scroll_x // tile_width
+    start_y = 0  # Si on veut un scrolling uniquement horizontal
+
+    # Offset de la caméra
+    offset_x = scroll_x % tile_width
+
+    # Parcourir les couches spécifiées
     for layer in tmx_data.visible_layers:
-        if isinstance(layer, pytmx.TiledTileLayer):
-            if layer.name in layers_to_draw:  # Vérifie si le layer est dans la liste à dessiner
-                for x, y, gid in layer:
-                    tile = tmx_data.get_tile_image_by_gid(gid)
-                    if tile:
+        if isinstance(layer, pytmx.TiledTileLayer) and layer.name in layers_to_draw:
+            # Utiliser la méthode layer.tiles() pour obtenir les tuiles (x, y, tile)
+            for x, y, tile in layer.tiles():
+                if tile:  # S'assurer que la tuile existe
+                    # Vérifie si la tuile est visible à l'écran
+                    if start_x <= x < start_x + tiles_in_screen_width:
                         # Applique le scaling à la tuile
-                        scaled_tile = pygame.transform.scale(tile, (tmx_data.tilewidth * SCALE_FACTOR, tmx_data.tileheight * SCALE_FACTOR))
-                        
-                        # Affiche la tuile à la position correcte avec le scaling appliqué
-                        screen.blit(scaled_tile, (x * tmx_data.tilewidth * SCALE_FACTOR, y * tmx_data.tileheight * SCALE_FACTOR))
+                        scaled_tile = pygame.transform.scale(tile, (tile_width, tile_height))
+
+                        # Calculer la position où dessiner la tuile à l'écran en fonction du scrolling
+                        screen_x = (x - start_x) * tile_width - offset_x
+                        screen_y = y * tile_height
+
+                        # Dessiner la tuile à la position calculée
+                        screen.blit(scaled_tile, (screen_x, screen_y))
+
+
+
+scroll_x_camera = 0
+scroll_x = 0
 
 clock = pygame.time.Clock()
 isRunning = True
 
 while isRunning:
+    scroll_x = 0 
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             isRunning = False
@@ -76,6 +105,7 @@ while isRunning:
                 player.jump()
             elif event.key == pygame.K_RIGHT:
                 player.move_right()
+                
             elif event.key == pygame.K_LEFT:
                 player.move_left()
 
@@ -83,17 +113,20 @@ while isRunning:
             if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT:
                 player.stop()
 
-    scroll_x = 0
+    scroll_x_camera += player.x_current_speed if player.rect.right > SCROLL_THRESHOLD else 0
+                
     if player.rect.right > SCROLL_THRESHOLD:
-        scroll_x = SCROLL_SPEED
+        scroll_x = player.x_current_speed
 
     # Ici on fait défiler toutes les plateformes
     platforms.update(scroll_x)
     if not player.is_grounded:
         player.gravite()
 
-    player.rect.x += player.x_current_speed
-    player.rect.y += player.y_current_speed
+    # player.rect.x += player.x_current_speed
+    # player.rect.y += player.y_current_speed
+
+    player.update()
 
     # Le joueur ne peut pas sortir de l'écran à gauche (limite de la fenêtre du début)
     if player.rect.left < 0:
@@ -137,8 +170,14 @@ while isRunning:
     # Afficher la saison actuelle
     current_season = season_cycle.current_season()
 
-    if current_season in ['Spring', 'Autumn']:
-        draw_specific_layers(season_cycle.SEASON_LAYERS[current_season])
+    max_scroll = (tmx_data.width * tmx_data.tilewidth * SCALE_FACTOR) - conf_screen.WIDTH_SCREEN
+    scroll_x = min(scroll_x, max_scroll)
+
+    # Afficher les layers de la saison actuelle avec le défilement
+    current_season = season_cycle.current_season()
+    draw_visible_tiles(season_cycle.SEASON_LAYERS['Spring'], scroll_x_camera)
+    # if current_season in ['Spring', 'Autumn']:
+    #     draw_specific_layers(season_cycle.SEASON_LAYERS[current_season], scroll_x, player.rect.x)
 
     pygame.display.flip()
 

@@ -3,7 +3,7 @@ import os
 import config.screen as conf_screen
 import config.colors as colors
 import entities.player as player_config
-from menu import show_menu
+from menu import show_pause_menu, show_start_menu
 import terrain.Platformer as platformer
 import season_cycle as season_cycle_manager
 import pytmx
@@ -147,7 +147,9 @@ scroll_x = 0
 clock = pygame.time.Clock()
 isRunning = True
 
-is_menu_displayed = show_menu(screen)
+inPause = False
+
+is_menu_displayed = show_start_menu(screen)
 
 while isRunning:
     scroll_x = 0
@@ -169,6 +171,13 @@ while isRunning:
             player.jump()
         if keys[pygame.K_t]:
             added_time_ms  += day_duration_ms // 32
+        if keys[pygame.K_ESCAPE]:
+            # Afficher le menu de pause
+            if show_pause_menu(screen) == False:
+                continue  # Reprendre le jeu
+            
+        if is_menu_displayed == True:
+            is_menu_displayed = show_pause_menu(screen)
 
         scroll_x_camera += player.x_current_speed * SCROLL_SPEED if player.rect.right > SCROLL_THRESHOLD else 0
                     

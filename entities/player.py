@@ -85,7 +85,7 @@ class Player(pygame.sprite.Sprite):
         # self.rect.x += self.x_current_speed
         self.rect.y += self.y_current_speed
         self.check_collision_y(platforms)
-        
+
         # Gérer les limites de l'écran
         if self.rect.right > conf_screen.WIDTH_SCREEN:
             self.rect.right = conf_screen.WIDTH_SCREEN
@@ -182,7 +182,7 @@ class Player(pygame.sprite.Sprite):
         image_offset_y = (original_rect.height - self.rect.height) //2
 
         # Créer une surface transparente pour le sprite avec les nouvelles dimensions
-        blitted_image = pygame.Surface((self.rect.width, self.rect.height), pygame.AUDIO_S16SYS)
+        blitted_image = pygame.Surface((self.rect.width, self.rect.height), pygame.SRCALPHA)
         blitted_image.blit(image, (-image_offset_x, -image_offset_y))
 
         # Assigner l'image redimensionnée avec l'offset

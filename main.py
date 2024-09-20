@@ -9,6 +9,7 @@ from menu import show_pause_menu, show_start_menu
 import terrain.Platformer as platformer
 import season_cycle as season_cycle_manager
 import pytmx
+import random
 
 pygame.mixer.init()
 
@@ -83,6 +84,31 @@ for layer in tmx_data.visible_layers:
                 platform.image = surface
                 gem = platform  # Assigner cette plateforme à l'objet "gemme"
 
+
+def shake_screen(duration, magnitude):
+    original_position = screen.get_rect().topleft
+    shake_start_time = pygame.time.get_ticks()
+
+    while pygame.time.get_ticks() - shake_start_time < duration:
+        # Générer des décalages aléatoires
+        offset_x = random.randint(-magnitude, magnitude)
+        offset_y = random.randint(-magnitude, magnitude)
+
+        # Redessiner l'écran à la position décalée
+        
+        screen.blit(background_image, (0, 0))
+        sprites.draw(screen)
+
+        # Appliquer l'effet de décalage
+        screen.blit(screen, (offset_x, offset_y))
+        pygame.display.flip()
+
+        clock.tick(60)  # Limiter la fréquence d'images pendant le shake
+
+    # Remettre l'écran à sa position d'origine
+    screen.blit(background_image, (0, 0))
+    sprites.draw(screen)
+    pygame.display.flip()
 
 # Fonction pour dessiner les couches spécifiques en tenant compte du défilement horizontal
 def draw_visible_tiles(layers_to_draw, scroll_x):
@@ -225,13 +251,6 @@ while isRunning:
 
         collided_lava = pygame.sprite.spritecollide(player, platforms_lava, False)
         # Si le joueur tombe sous l'écran, il meurt et le jeu recommence au TOUT début en remontant meme le background et remettant le joueur en position initiale
-        if player.rect.top > conf_screen.HEIGHT_SCREEN or collided_lava:
-            player.rect.x = 400
-            player.rect.y = conf_screen.HEIGHT_SCREEN - 400
-            player.is_grounded = False
-            player.y_current_speed = 0
-            player.x_current_speed = 0
-            player.started_age += 3
 
         screen.blit(background_image, (0, 0))
         
@@ -311,7 +330,16 @@ while isRunning:
                 # Dessiner le texte centré à l'écran
                 screen.blit(text, text_rect)
 
+        if player.rect.top > conf_screen.HEIGHT_SCREEN or collided_lava:
+            player.rect.x = 400
+            player.rect.y = conf_screen.HEIGHT_SCREEN - 400
+            player.is_grounded = False
+            player.y_current_speed = 0
+            player.x_current_speed = 0
+            player.started_age += 3
+            shake_screen(500, 10)
         clock.tick(60)
         pygame.display.flip()
 
 pygame.quit()
+

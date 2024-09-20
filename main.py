@@ -209,6 +209,8 @@ image = pygame.image.load('assets/UI/menu/end_screen.jpg')
 is_menu_displayed = show_start_menu(screen)
 time_to_sub = pygame.time.get_ticks()
 
+end_game = 0
+
 while isRunning:
     scroll_x = 0
     actual_platforms = remove_all_but_one_group(platforms, "terrain")
@@ -332,6 +334,18 @@ while isRunning:
                 text_rect.center = (conf_screen.WIDTH_SCREEN // 2 , 618)
                 scaled_image = pygame.transform.scale(image, (conf_screen.WIDTH_SCREEN, conf_screen.HEIGHT_SCREEN))
                 
+                if end_game == 0:
+                    if os.path.exists('music/win.mp3'):
+                        print("OKOK")
+                        pygame.mixer.music.stop()  # Stop the current music
+                        pygame.mixer.init()  # Re-initialize the mixer
+                        pygame.mixer.music.set_volume(1)  # Set the volume to 50%
+                        pygame.mixer.music.load('music/win.mp3')  # Load the new music
+                        pygame.mixer.music.play(1)  # Play the new music in a loop
+                    else:
+                        print("Music file 'win.mp3' not found!")
+                    end_game = 1
+
                 # Afficher l'image adaptée à l'écran
                 screen.blit(scaled_image, (0, 0))  # Affiche l'image redimensionnée pour couvrir tout l'écran
 
@@ -367,4 +381,10 @@ while isRunning:
         pygame.display.flip()
 
 pygame.quit()
+
+
+
+
+
+
 

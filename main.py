@@ -253,8 +253,8 @@ while isRunning:
         collided_lava = pygame.sprite.spritecollide(player, platforms_lava, False)
         # Si le joueur tombe sous l'écran, il meurt et le jeu recommence au TOUT début en remontant meme le background et remettant le joueur en position initiale
         if player.rect.top > conf_screen.HEIGHT_SCREEN or collided_lava:
-            player.rect.x = 200
-            player.rect.y = 100
+            player.rect.x = player.rect.x - 300
+            player.rect.y = 50
             player.is_grounded = False
             player.y_current_speed = 0
             player.x_current_speed = 0

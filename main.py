@@ -377,6 +377,18 @@ while isRunning:
             # Dessiner le texte centré à l'écran
             screen.blit(text, text_rect)
 
+            
+            if end_game == 0:
+                if os.path.exists('music/game_over.mp3'):
+                    pygame.mixer.music.stop()  # Stop the current music
+                    pygame.mixer.init()  # Re-initialize the mixer
+                    pygame.mixer.music.set_volume(1)  # Set the volume to 50%
+                    pygame.mixer.music.load('music/game_over.mp3')  # Load the new music
+                    pygame.mixer.music.play(1)  # Play the new music in a loop
+                else:
+                    print("Music file 'game_over.mp3' not found!")
+                end_game = 1
+
         clock.tick(60)
         pygame.display.flip()
 

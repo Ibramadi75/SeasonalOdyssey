@@ -43,7 +43,6 @@ PATH = os.path.dirname(__file__)
 background_image = pygame.image.load('assets/winter/background/background.png').convert()
 background_image = pygame.transform.scale(background_image, (conf_screen.WIDTH_SCREEN, conf_screen.HEIGHT_SCREEN))
 
-SEASONS = ["Printemps", "Été", "Automne", "Hiver"]
 day_duration_ms = 100  # 0.1 seconds for 1 in-game day
 added_time_ms = 0      # Additional time in milliseconds
 
@@ -228,7 +227,7 @@ while isRunning:
             draw_visible_tiles(["ice_layer", "lava_block_layer", "tree0_layer"], scroll_x_camera)
             actual_platforms = add_sprites_to_group(["collision_tree0_layer", "ice_collision_layer", "lava_block_collision_layer"], actual_platforms)
 
-        draw_visible_tiles(season_cycle.SEASON_LAYERS["Spring"], scroll_x_camera) #
+        draw_visible_tiles(season_cycle.SEASON_LAYERS[current_season], scroll_x_camera)
 
         player.show_age(screen)
         player.is_jumping = False

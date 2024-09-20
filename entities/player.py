@@ -66,7 +66,8 @@ class Player(pygame.sprite.Sprite):
         self.is_jumping = False
         self.id = "terrain"
         self.is_blocked = False
-        self.started_age = 16
+        self.started_age = 15
+        self.is_dead = False
 
     def update(self, platforms):
         if self.is_blocked:
@@ -204,27 +205,28 @@ class Player(pygame.sprite.Sprite):
         self.age = (year_elapsed) + self.started_age
 
     def update_state(self):
-        if self.age < 65:
-            self.state = Age.OLD
-            self.def_move_speed = 3
-            self.jump_speed = 12
-        if self.age < 50:
+        # if self.age < 51:
+        #     self.state = Age.OLD
+        #     self.def_move_speed = 3
+        #     self.jump_speed = 12
+        if self.age < 45:
             self.state = Age.ADULT
-            self.def_move_speed = 4
+            self.def_move_speed = 5
             self.jump_speed = 12
-        if self.age < 18:
+        if self.age < 20:
             self.state = Age.YOUNG
             self.def_move_speed = 5
             self.jump_speed = 12
 
-        if self.age >= 65:
+        if self.age >= 51:
+            self.state = Age.OLD
             self.die()
 
     def get_age(self):
         return self.age
 
     def die(self):
-        print("You are dead")
+        self.is_dead = True
         return
 
     def show_age(self, screen):

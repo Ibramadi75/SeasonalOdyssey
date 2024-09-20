@@ -34,7 +34,8 @@ pygame.display.set_caption("Seasonal Odyssey")
 
 GRAVITE = 0.8
 SCROLL_SPEED = 1.5  
-SCROLL_THRESHOLD = 0.35 * conf_screen.WIDTH_SCREEN 
+SCROLL_THRESHOLD = 0.5 * conf_screen.WIDTH_SCREEN 
+
 
 PATH = os.path.dirname(__file__)
 
@@ -179,9 +180,9 @@ while isRunning:
         if is_menu_displayed == True:
             is_menu_displayed = show_pause_menu(screen)
 
-        scroll_x_camera += player.x_current_speed * SCROLL_SPEED if player.rect.right > SCROLL_THRESHOLD else 0
-                    
-        if player.rect.right > SCROLL_THRESHOLD:
+        # Ne faire défiler la caméra que si le joueur avance (vitesse positive)
+        if player.x_current_speed > 0 and player.rect.right > SCROLL_THRESHOLD:
+            scroll_x_camera += player.x_current_speed * SCROLL_SPEED  # La caméra défile seulement vers la droite
             scroll_x = player.x_current_speed * SCROLL_SPEED
 
         # Ici on fait défiler toutes les plateformes

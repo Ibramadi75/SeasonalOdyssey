@@ -268,7 +268,7 @@ while isRunning:
             player.y_current_speed = 0
             player.x_current_speed = 0
             player.started_age += 3
-            stopplayertimer = 36
+            
 
         screen.blit(background_image, (0, 0))
         
@@ -364,7 +364,7 @@ while isRunning:
             player.y_current_speed = 0
             player.x_current_speed = 0
             player.started_age += 3
-
+            stopplayertimer = 36
             # Musique mort :
             death_sound = pygame.mixer.Sound("music/death.mp3")
             pygame.mixer.Channel(2).play(death_sound)

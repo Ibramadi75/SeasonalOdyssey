@@ -359,6 +359,11 @@ while isRunning:
             player.y_current_speed = 0
             player.x_current_speed = 0
             player.started_age += 3
+
+            # Musique mort :
+            death_sound = pygame.mixer.Sound("music/death.mp3")
+            pygame.mixer.Channel(2).play(death_sound)
+            
             shake_screen(500, 10)
             
         if player.is_dead:
@@ -370,6 +375,8 @@ while isRunning:
             
             # Obtenir le rectangle du texte rendu pour ses dimensions
             text_rect = text.get_rect()
+
+            
             
             # Calculer la position centrée
             text_rect.center = (conf_screen.WIDTH_SCREEN // 2 , conf_screen.HEIGHT_SCREEN // 2)

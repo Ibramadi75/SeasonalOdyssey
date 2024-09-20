@@ -50,7 +50,6 @@ added_time_ms = 0      # Additional time in milliseconds
 sprites = pygame.sprite.Group()
 platforms = pygame.sprite.Group()
 platforms_lava = pygame.sprite.Group()
-# gem = None
 
 player = player_config.Player(platforms)
 sprites.add(player)
@@ -152,6 +151,21 @@ def remove_all_but_one_group(group, group_to_keep):
 
     return group
 
+def get_time_string(elapsed_time_ms):
+    # Convertir ce temps en secondes
+    elapsed_seconds = elapsed_time_ms // 1000
+
+    # Calculer les heures, minutes et secondes
+    hours = elapsed_seconds // 3600
+    minutes = (elapsed_seconds % 3600) // 60
+    seconds = elapsed_seconds % 60
+
+    # Formater le temps en "hh:mm:ss"
+    time_string = f"{hours:02}h:{minutes:02}m:{seconds:02}s"
+
+    return time_string
+
+
 scroll_x_camera = 0
 scroll_x = 0
 
@@ -159,8 +173,12 @@ clock = pygame.time.Clock()
 isRunning = True
 
 inPause = False
+isFinish = False
+
+image = pygame.image.load('assets/UI/menu/end_screen.jpg')
 
 is_menu_displayed = show_start_menu(screen)
+time_to_sub = pygame.time.get_ticks()
 
 while isRunning:
     scroll_x = 0
@@ -205,12 +223,12 @@ while isRunning:
         collided_lava = pygame.sprite.spritecollide(player, platforms_lava, False)
         # Si le joueur tombe sous l'écran, il meurt et le jeu recommence au TOUT début en remontant meme le background et remettant le joueur en position initiale
         if player.rect.top > conf_screen.HEIGHT_SCREEN or collided_lava:
-            print('out')
             player.rect.x = 400
             player.rect.y = conf_screen.HEIGHT_SCREEN - 400
             player.is_grounded = False
             player.y_current_speed = 0
             player.x_current_speed = 0
+            player.started_age += 3
 
         screen.blit(background_image, (0, 0))
         
@@ -219,10 +237,11 @@ while isRunning:
         sprites.draw(screen)
         
         # Mettre à jour et afficher le cycle des saisons
-        season_cycle.update_needle_rotation()
-        season_cycle.show_season_cycle()
-        
-        player.update_age(season_cycle.year_elapsed())
+        if not isFinish:
+            season_cycle.update_needle_rotation()
+            season_cycle.show_season_cycle()
+            
+            player.update_age(season_cycle.year_elapsed())
 
         current_season = season_cycle.current_season()
 
@@ -256,18 +275,38 @@ while isRunning:
         elif not collided_platform:
             player.is_grounded = False
 
+        # afficher le temps de jeu sur l'écran en haut au milieu de cette façon : "XXh:XXm:XXs"
+        
+        if not isFinish:
+            font_time = pygame.font.Font(None, 36)
+            text_time = get_time_string(pygame.time.get_ticks() - time_to_sub)
+            padding = 50
+            text_time_render = font_time.render(text_time, True, colors.BLACK)
+            screen.blit(text_time_render, (conf_screen.WIDTH_SCREEN // 2 - padding, padding))
+
         # detect end game
         if gem:
-            gem.rect.x -= scroll_x 
+            gem.rect.x -= scroll_x
             if pygame.sprite.collide_rect(player, gem):
                 player.is_blocked = True
+                isFinish = True
                 
-                # afficher un message de fin de jeu sur l'écran
-                font = pygame.font.Font(None, 36)
-                text = font.render("You won!", True, colors.RED)
-                padding = 50
-                screen.blit(text, (conf_screen.WIDTH_SCREEN // 2 - padding, conf_screen.HEIGHT_SCREEN // 2 - padding))
-        
+                font = pygame.font.Font(None, 72)
+                text = font.render(text_time + "    " + str(player.age) + " ans", True, colors.WHITE)
+                
+                # Obtenir le rectangle du texte rendu pour ses dimensions
+                text_rect = text.get_rect()
+                
+                # Calculer la position centrée
+                text_rect.center = (conf_screen.WIDTH_SCREEN // 2 , 618)
+                scaled_image = pygame.transform.scale(image, (conf_screen.WIDTH_SCREEN, conf_screen.HEIGHT_SCREEN))
+                
+                # Afficher l'image adaptée à l'écran
+                screen.blit(scaled_image, (0, 0))  # Affiche l'image redimensionnée pour couvrir tout l'écran
+
+                # Dessiner le texte centré à l'écran
+                screen.blit(text, text_rect)
+
         clock.tick(60)
         pygame.display.flip()
 

@@ -24,6 +24,26 @@ class Direction(Enum):
     LEFT = "left"
     RIGHT = "right"
 
+def resize_by_removing_top(image, pixels_to_remove):
+    """Resize the image by removing pixels from the top."""
+    # Get the current width and height of the image
+    width, height = image.get_size()
+    
+    # Ensure pixels_to_remove is within the height of the image
+    if pixels_to_remove >= height:
+        raise ValueError("Cannot remove more pixels than the height of the image")
+    
+    # Define the new rectangle for the resized image (removing from the top)
+    new_rect = pygame.Rect(0, pixels_to_remove, width, height - pixels_to_remove)
+    
+    # Create a new surface with the new size
+    new_image = pygame.Surface((width, height - pixels_to_remove), pygame.SRCALPHA)
+    
+    # Blit (copy) the relevant part of the original image onto the new surface
+    new_image.blit(image, (0, 0), new_rect)
+    
+    return new_image
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, platforms):
         super().__init__()
@@ -132,24 +152,35 @@ class Player(pygame.sprite.Sprite):
             image_counter = (((pygame.time.get_ticks()//100))%files_number)+1
             image = pygame.image.load(path + self.state.value + "-" + self.current_action.value + "-" + str(image_counter) + ".png")
 
+
+        if self.state  == Age.YOUNG:
+            image =  resize_by_removing_top(image,13)
+        elif self.state  == Age.ADULT:
+            image =  resize_by_removing_top(image,20)
+        elif self.state  == Age.OLD:
+            image =  resize_by_removing_top(image,58)
+
+
         # Sauvegarder le centre actuel du rect de collision pour conserver sa position après redimensionnement
         old_center = self.rect.center
 
         # Récupérer le rectangle de l'image
         original_rect = image.get_rect()
 
-        # Créer un nouveau rect pour le joueur, deux fois plus étroit que l'image
-        new_width = original_rect.width * 0.5
-        self.rect = pygame.Rect(0, 0, new_width, original_rect.height)
+        # Créer un nouveau rect pour le joueur, redimensionné en largeur et en hauteur
+        new_width = original_rect.width * 0.5  # Par exemple, 50% de la largeur
+        new_height = original_rect.height   # Par exemple, 50% de la hauteur
+        self.rect = pygame.Rect(0, 0, new_width, new_height)
 
-        # Centrer l'image par rapport au rect de collision
+        # Calculer les offsets pour centrer l'image par rapport au rect de collision
         image_offset_x = (original_rect.width - self.rect.width) // 2
+        image_offset_y = (original_rect.height - self.rect.height) //2
 
-        # Créer une surface transparente pour le sprite
-        blitted_image = pygame.Surface((self.rect.width, original_rect.height), pygame.SRCALPHA)
-        blitted_image.blit(image, (-image_offset_x, 0))
+        # Créer une surface transparente pour le sprite avec les nouvelles dimensions
+        blitted_image = pygame.Surface((self.rect.width, self.rect.height), pygame.AUDIO_S16SYS)
+        blitted_image.blit(image, (-image_offset_x, -image_offset_y))
 
-        # Assigner l'image avec l'offset
+        # Assigner l'image redimensionnée avec l'offset
         self.image = blitted_image
 
         # Réappliquer le centre sauvegardé

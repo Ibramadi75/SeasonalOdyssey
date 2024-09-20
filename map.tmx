@@ -546,6 +546,6 @@
 </data>
  </layer>
  <objectgroup id="25" name="gem_collision_layer">
-  <object id="176" x="81.4583" y="267.396" width="15.75" height="15.875"/>
+  <object id="174" x="4111.88" y="224.063" width="15.75" height="15.875"/>
  </objectgroup>
 </map>

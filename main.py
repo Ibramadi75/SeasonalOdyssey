@@ -366,8 +366,9 @@ while isRunning:
             player.started_age += 3
             stopplayertimer = 36
             # Musique mort :
-            death_sound = pygame.mixer.Sound("music/death.mp3")
-            pygame.mixer.Channel(2).play(death_sound)
+            if not player.age >= 51:
+                death_sound = pygame.mixer.Sound("music/death.mp3")
+                pygame.mixer.Channel(2).play(death_sound)
             
             shake_screen(500, 10)
             
@@ -380,8 +381,6 @@ while isRunning:
             
             # Obtenir le rectangle du texte rendu pour ses dimensions
             text_rect = text.get_rect()
-
-            
             
             # Calculer la position centrée
             text_rect.center = (conf_screen.WIDTH_SCREEN // 2 , conf_screen.HEIGHT_SCREEN // 2)
@@ -389,7 +388,6 @@ while isRunning:
             # Dessiner le texte centré à l'écran
             screen.blit(text, text_rect)
 
-            
             if end_game == 0:
                 if os.path.exists('music/game_over.mp3'):
                     pygame.mixer.music.stop()  # Stop the current music

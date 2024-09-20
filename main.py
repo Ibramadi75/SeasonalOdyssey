@@ -9,6 +9,7 @@ from menu import show_pause_menu, show_start_menu
 import terrain.Platformer as platformer
 import season_cycle as season_cycle_manager
 import pytmx
+import random
 
 pygame.mixer.init()
 
@@ -83,6 +84,34 @@ for layer in tmx_data.visible_layers:
                 platform.image = surface
                 gem = platform  # Assigner cette plateforme à l'objet "gemme"
 
+
+def shake_screen(duration, magnitude):
+    original_position = screen.get_rect().topleft
+    shake_start_time = pygame.time.get_ticks()
+
+    while pygame.time.get_ticks() - shake_start_time < duration:
+        # Générer des décalages aléatoires
+        offset_x = random.randint(-magnitude, magnitude)
+        offset_y = random.randint(-magnitude, magnitude)
+
+        # Redessiner l'écran à la position décalée
+        
+        screen.blit(background_image, (0, 0))
+        sprites.draw(screen)
+
+        # Appliquer l'effet de décalage
+        screen.blit(screen, (offset_x, offset_y))
+        pygame.display.flip()
+
+        clock.tick(60)  # Limiter la fréquence d'images pendant le shake
+        
+    player.rect.x = player.rect.x - 300
+    player.rect.y = 50
+
+    # Remettre l'écran à sa position d'origine
+    screen.blit(background_image, (0, 0))
+    sprites.draw(screen)
+    pygame.display.flip()
 
 # Fonction pour dessiner les couches spécifiques en tenant compte du défilement horizontal
 def draw_visible_tiles(layers_to_draw, scroll_x):
@@ -180,6 +209,8 @@ image = pygame.image.load('assets/UI/menu/end_screen.jpg')
 is_menu_displayed = show_start_menu(screen)
 time_to_sub = pygame.time.get_ticks()
 stopplayertimer = 0 
+
+end_game = 0
 
 while isRunning:
     scroll_x = 0
@@ -308,12 +339,38 @@ while isRunning:
                 text_rect.center = (conf_screen.WIDTH_SCREEN // 2 , 618)
                 scaled_image = pygame.transform.scale(image, (conf_screen.WIDTH_SCREEN, conf_screen.HEIGHT_SCREEN))
                 
+                if end_game == 0:
+                    if os.path.exists('music/win.mp3'):
+                        print("OKOK")
+                        pygame.mixer.music.stop()  # Stop the current music
+                        pygame.mixer.init()  # Re-initialize the mixer
+                        pygame.mixer.music.set_volume(1)  # Set the volume to 50%
+                        pygame.mixer.music.load('music/win.mp3')  # Load the new music
+                        pygame.mixer.music.play(1)  # Play the new music in a loop
+                    else:
+                        print("Music file 'win.mp3' not found!")
+                    end_game = 1
+
                 # Afficher l'image adaptée à l'écran
                 screen.blit(scaled_image, (0, 0))  # Affiche l'image redimensionnée pour couvrir tout l'écran
 
                 # Dessiner le texte centré à l'écran
                 screen.blit(text, text_rect)
 
+        if player.rect.top > conf_screen.HEIGHT_SCREEN or collided_lava:
+            player.rect.x = 400
+            player.rect.y = conf_screen.HEIGHT_SCREEN - 400
+            player.is_grounded = False
+            player.y_current_speed = 0
+            player.x_current_speed = 0
+            player.started_age += 3
+
+            # Musique mort :
+            death_sound = pygame.mixer.Sound("music/death.mp3")
+            pygame.mixer.Channel(2).play(death_sound)
+            
+            shake_screen(500, 10)
+            
         if player.is_dead:
             player.is_blocked = True
             isFinish = True
@@ -323,6 +380,8 @@ while isRunning:
             
             # Obtenir le rectangle du texte rendu pour ses dimensions
             text_rect = text.get_rect()
+
+            
             
             # Calculer la position centrée
             text_rect.center = (conf_screen.WIDTH_SCREEN // 2 , conf_screen.HEIGHT_SCREEN // 2)
@@ -330,7 +389,26 @@ while isRunning:
             # Dessiner le texte centré à l'écran
             screen.blit(text, text_rect)
 
+            
+            if end_game == 0:
+                if os.path.exists('music/game_over.mp3'):
+                    pygame.mixer.music.stop()  # Stop the current music
+                    pygame.mixer.init()  # Re-initialize the mixer
+                    pygame.mixer.music.set_volume(1)  # Set the volume to 50%
+                    pygame.mixer.music.load('music/game_over.mp3')  # Load the new music
+                    pygame.mixer.music.play(1)  # Play the new music in a loop
+                else:
+                    print("Music file 'game_over.mp3' not found!")
+                end_game = 1
+
         clock.tick(60)
         pygame.display.flip()
 
 pygame.quit()
+
+
+
+
+
+
+

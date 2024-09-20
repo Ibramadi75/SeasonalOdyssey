@@ -9,6 +9,8 @@ GRAVITE = .8
 PLAYER_IMG = pygame.Surface((50, 50))
 PLAYER_IMG.fill(colors.RED)
 
+jump_sound = pygame.mixer.Sound("music/jump.wav")
+
 class Action(Enum):
     WALK = "run"
     JUMP = "jump"
@@ -114,6 +116,7 @@ class Player(pygame.sprite.Sprite):
             self.y_current_speed = -self.jump_speed
             self.is_grounded = False
             self.current_action = Action.JUMP
+            pygame.mixer.Channel(1).play(jump_sound)
 
     def move_right(self):
         self.x_current_speed = self.move_speed

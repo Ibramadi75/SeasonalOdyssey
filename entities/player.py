@@ -57,7 +57,8 @@ class Player(pygame.sprite.Sprite):
         self.is_grounded = False
         self.x_current_speed = 0
         self.y_current_speed = 0
-        self.move_speed = 6
+        self.move_speed = 5
+        self.def_move_speed = 5
         self.jump_speed = 12
         self.age = 8
         self.state = Age.YOUNG
@@ -205,10 +206,16 @@ class Player(pygame.sprite.Sprite):
     def update_state(self):
         if self.age < 65:
             self.state = Age.OLD
+            self.def_move_speed = 3
+            self.jump_speed = 12
         if self.age < 50:
             self.state = Age.ADULT
+            self.def_move_speed = 4
+            self.jump_speed = 12
         if self.age < 18:
             self.state = Age.YOUNG
+            self.def_move_speed = 5
+            self.jump_speed = 12
 
         if self.age >= 65:
             self.die()

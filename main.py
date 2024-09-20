@@ -244,6 +244,7 @@ while isRunning:
 
         # Ici on fait défiler toutes les plateformes
         platforms.update(scroll_x)
+        platforms_lava.update(scroll_x)
 
         # Le joueur ne peut pas sortir de l'écran à gauche (limite de la fenêtre du début)
         if player.rect.left < 0:
@@ -251,6 +252,13 @@ while isRunning:
 
         collided_lava = pygame.sprite.spritecollide(player, platforms_lava, False)
         # Si le joueur tombe sous l'écran, il meurt et le jeu recommence au TOUT début en remontant meme le background et remettant le joueur en position initiale
+        if player.rect.top > conf_screen.HEIGHT_SCREEN or collided_lava:
+            player.rect.x = 200
+            player.rect.y = 100
+            player.is_grounded = False
+            player.y_current_speed = 0
+            player.x_current_speed = 0
+            player.started_age += 3
 
         screen.blit(background_image, (0, 0))
         
@@ -287,7 +295,6 @@ while isRunning:
         player.is_jumping = False
 
         player.update(actual_platforms)
-        # actual_platforms.draw(screen)
 
         collided_platform = pygame.sprite.spritecollide(player, actual_platforms, False)
         if collided_platform:
@@ -298,8 +305,6 @@ while isRunning:
         elif not collided_platform:
             player.is_grounded = False
 
-        # afficher le temps de jeu sur l'écran en haut au milieu de cette façon : "XXh:XXm:XXs"
-        
         if not isFinish:
             font_time = pygame.font.Font(None, 36)
             text_time = get_time_string(pygame.time.get_ticks() - time_to_sub)
@@ -338,6 +343,23 @@ while isRunning:
             player.x_current_speed = 0
             player.started_age += 3
             shake_screen(500, 10)
+            
+        if player.is_dead:
+            player.is_blocked = True
+            isFinish = True
+
+            font = pygame.font.Font(None, 72)
+            text = font.render("You died ! You lost the game", True, colors.RED)
+            
+            # Obtenir le rectangle du texte rendu pour ses dimensions
+            text_rect = text.get_rect()
+            
+            # Calculer la position centrée
+            text_rect.center = (conf_screen.WIDTH_SCREEN // 2 , conf_screen.HEIGHT_SCREEN // 2)
+
+            # Dessiner le texte centré à l'écran
+            screen.blit(text, text_rect)
+
         clock.tick(60)
         pygame.display.flip()
 

@@ -229,6 +229,7 @@ while isRunning:
             player.move_right()
         if keys[pygame.K_SPACE] :
             player.jump()
+            # pygame.mixer.Channel(1).play(jump_sound)
         if keys[pygame.K_t]:
             added_time_ms  += day_duration_ms // 32
         if keys[pygame.K_ESCAPE]:

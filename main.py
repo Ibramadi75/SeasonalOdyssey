@@ -90,6 +90,8 @@ def shake_screen(duration, magnitude):
     shake_start_time = pygame.time.get_ticks()
 
     while pygame.time.get_ticks() - shake_start_time < duration:
+
+        
         # Générer des décalages aléatoires
         offset_x = random.randint(-magnitude, magnitude)
         offset_y = random.randint(-magnitude, magnitude)
@@ -238,6 +240,18 @@ while isRunning:
                 if show_pause_menu(screen) == False:
                     continue  # Reprendre le jeu
         else :
+            if keys[pygame.K_LEFT] :
+                player.move_left()
+            if keys[pygame.K_RIGHT] :
+                player.move_right()
+            if keys[pygame.K_SPACE] :
+                player.jump()
+            if keys[pygame.K_t]:
+                added_time_ms  += day_duration_ms // 32
+            if keys[pygame.K_ESCAPE]:
+                # Afficher le menu de pause
+                if show_pause_menu(screen) == False:
+                    continue  # Reprendre le jeu
             added_time_ms  += day_duration_ms // 10 
             stopplayertimer -= 1
         if is_menu_displayed == True:
@@ -366,7 +380,7 @@ while isRunning:
             player.started_age += 3
             stopplayertimer = 36
             # Musique mort :
-            if not player.age >= 51:
+            if not player.age >= 61:
                 death_sound = pygame.mixer.Sound("music/death.mp3")
                 pygame.mixer.Channel(2).play(death_sound)
             

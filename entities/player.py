@@ -221,7 +221,7 @@ class Player(pygame.sprite.Sprite):
             self.def_move_speed = 5
             self.jump_speed = 12
 
-        if self.age >= 51:
+        if self.age >= 61:
             self.state = Age.OLD
             self.die()
 

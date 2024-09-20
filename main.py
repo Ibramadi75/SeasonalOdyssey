@@ -180,6 +180,8 @@ image = pygame.image.load('assets/UI/menu/end_screen.jpg')
 is_menu_displayed = show_start_menu(screen)
 time_to_sub = pygame.time.get_ticks()
 
+# jump_sound = pygame.mixer.Sound('assets/music/jump.wav')
+
 while isRunning:
     scroll_x = 0
     actual_platforms = remove_all_but_one_group(platforms, "terrain")
@@ -198,6 +200,7 @@ while isRunning:
             player.move_right()
         if keys[pygame.K_SPACE] :
             player.jump()
+            # pygame.mixer.Channel(1).play(jump_sound)
         if keys[pygame.K_t]:
             added_time_ms  += day_duration_ms // 32
         if keys[pygame.K_ESCAPE]:

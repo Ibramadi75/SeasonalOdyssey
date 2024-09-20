@@ -35,7 +35,7 @@ pygame.display.set_caption("Seasonal Odyssey")
 
 GRAVITE = 0.8
 SCROLL_SPEED = 1
-SCROLL_THRESHOLD = 0.5 * conf_screen.WIDTH_SCREEN 
+SCROLL_THRESHOLD = 0.25 * conf_screen.WIDTH_SCREEN 
 
 
 PATH = os.path.dirname(__file__)

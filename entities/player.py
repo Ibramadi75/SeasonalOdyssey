@@ -42,7 +42,6 @@ class Player(pygame.sprite.Sprite):
         self.age = 8
         self.state = Age.YOUNG
         self.platforms = platforms  # Liste des plateformes pour la détection de collision
-        self.age = 0
         self.is_jumping = False
         self.id = "terrain"
 
@@ -60,7 +59,8 @@ class Player(pygame.sprite.Sprite):
 
         # self.rect.x += self.x_current_speed
         self.rect.y += self.y_current_speed
-
+        self.check_collision_y(platforms)
+        
         # Gérer les limites de l'écran
         if self.rect.right > conf_screen.WIDTH_SCREEN:
             self.rect.right = conf_screen.WIDTH_SCREEN
@@ -110,20 +110,12 @@ class Player(pygame.sprite.Sprite):
                 elif self.x_current_speed < 0:
                     self.rect.left = collision.rect.right
 
-    def check_collision_y(self):
+    def check_collision_y(self,platforms):
         """Vérifie et gère les collisions du joueur avec les plateformes sur l'axe Y"""
-        self.is_grounded = False  # On réinitialise l'état "au sol"
-        for platform in self.platforms:
+        for platform in platforms:
             if self.rect.colliderect(platform.rect):
-                # Si collision en tombant (le joueur touche le haut de la plateforme)
-                if self.y_current_speed > 0:
-                    print("collision bas")
-                    self.rect.bottom = platform.rect.top
-                    self.y_current_speed = 0
-                    self.is_grounded = True  # Le joueur est bien au sol
                 # Si collision en montant (le joueur touche le bas de la plateforme)
-                elif self.y_current_speed < 0:
-                    print("collision haut")
+                if self.y_current_speed < 0:
                     self.rect.top = platform.rect.bottom
                     self.y_current_speed = 0
 

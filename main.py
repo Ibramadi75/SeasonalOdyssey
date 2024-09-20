@@ -179,6 +179,7 @@ image = pygame.image.load('assets/UI/menu/end_screen.jpg')
 
 is_menu_displayed = show_start_menu(screen)
 time_to_sub = pygame.time.get_ticks()
+stopplayertimer = 0 
 
 while isRunning:
     scroll_x = 0
@@ -192,19 +193,22 @@ while isRunning:
                 if event.key == pygame.K_RIGHT or event.key == pygame.K_LEFT:
                     player.stop()
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT] :
-            player.move_left()
-        if keys[pygame.K_RIGHT] :
-            player.move_right()
-        if keys[pygame.K_SPACE] :
-            player.jump()
-        if keys[pygame.K_t]:
-            added_time_ms  += day_duration_ms // 32
-        if keys[pygame.K_ESCAPE]:
-            # Afficher le menu de pause
-            if show_pause_menu(screen) == False:
-                continue  # Reprendre le jeu
-            
+        if (stopplayertimer <= 0 ):
+            if keys[pygame.K_LEFT] :
+                player.move_left()
+            if keys[pygame.K_RIGHT] :
+                player.move_right()
+            if keys[pygame.K_SPACE] :
+                player.jump()
+            if keys[pygame.K_t]:
+                added_time_ms  += day_duration_ms // 32
+            if keys[pygame.K_ESCAPE]:
+                # Afficher le menu de pause
+                if show_pause_menu(screen) == False:
+                    continue  # Reprendre le jeu
+        else :
+            added_time_ms  += day_duration_ms // 10 
+            stopplayertimer -= 1
         if is_menu_displayed == True:
             is_menu_displayed = show_pause_menu(screen)
 
@@ -233,6 +237,7 @@ while isRunning:
             player.y_current_speed = 0
             player.x_current_speed = 0
             player.started_age += 3
+            stopplayertimer = 36
 
         screen.blit(background_image, (0, 0))
         

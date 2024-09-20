@@ -104,6 +104,9 @@ def shake_screen(duration, magnitude):
         pygame.display.flip()
 
         clock.tick(60)  # Limiter la fréquence d'images pendant le shake
+        
+    player.rect.x = player.rect.x - 300
+    player.rect.y = 50
 
     # Remettre l'écran à sa position d'origine
     screen.blit(background_image, (0, 0))

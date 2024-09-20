@@ -64,8 +64,13 @@ class Player(pygame.sprite.Sprite):
         self.platforms = platforms  # Liste des plateformes pour la détection de collision
         self.is_jumping = False
         self.id = "terrain"
+        self.is_blocked = False
 
     def update(self, platforms):
+        if self.is_blocked:
+            self.move_speed = 0
+            self.jump_speed = 0
+            return
         # Mouvements et collisions sur l'axe X
         self.rect.x += self.x_current_speed
         self.check_collision_x(platforms)

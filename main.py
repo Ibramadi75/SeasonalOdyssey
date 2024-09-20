@@ -1,5 +1,7 @@
-import pygame
 import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
+
+import pygame
 import config.screen as conf_screen
 import config.colors as colors
 import entities.player as player_config
@@ -13,7 +15,6 @@ pygame.mixer.init()
 # Load the music file
 music_path = 'music/sound_theme2.mp3'
 if os.path.exists(music_path):
-    print("Music file found!")
     pygame.mixer.music.load(music_path)
 else:
     print("Music file not found!")
@@ -34,22 +35,22 @@ pygame.display.set_caption("Seasonal Odyssey")
 
 GRAVITE = 0.8
 SCROLL_SPEED = 1.5  
-SCROLL_THRESHOLD = 0.35 * conf_screen.WIDTH_SCREEN 
+SCROLL_THRESHOLD = 0.5 * conf_screen.WIDTH_SCREEN 
+
 
 PATH = os.path.dirname(__file__)
-
 
 # Charger l'image
 background_image = pygame.image.load('assets/winter/background/background.png').convert()
 background_image = pygame.transform.scale(background_image, (conf_screen.WIDTH_SCREEN, conf_screen.HEIGHT_SCREEN))
 
-SEASONS = ["Printemps", "Été", "Automne", "Hiver"]
 day_duration_ms = 100  # 0.1 seconds for 1 in-game day
 added_time_ms = 0      # Additional time in milliseconds
 
 sprites = pygame.sprite.Group()
 platforms = pygame.sprite.Group()
 platforms_lava = pygame.sprite.Group()
+# gem = None
 
 player = player_config.Player(platforms)
 sprites.add(player)
@@ -73,6 +74,16 @@ for layer in tmx_data.visible_layers:
                 surface = pygame.Surface((rect.width, rect.height), pygame.SRCALPHA)
                 platform.image = surface
                 platforms_lava.add(platform)
+
+        if layer.name == "gem_collision_layer":
+            for obj in layer:
+                # Crée un rectangle pour chaque objet de collision
+                rect = pygame.Rect(obj.x* SCALE_FACTOR, obj.y* SCALE_FACTOR, obj.width* SCALE_FACTOR, obj.height* SCALE_FACTOR)
+                platform = platformer.Platform(rect.width, rect.height, rect.x, rect.y)
+                surface = pygame.Surface((rect.width, rect.height))
+                platform.image = surface
+                gem = platform  # Assigner cette plateforme à l'objet "gemme"
+
 
 # Fonction pour dessiner les couches spécifiques en tenant compte du défilement horizontal
 def draw_visible_tiles(layers_to_draw, scroll_x):
@@ -179,9 +190,9 @@ while isRunning:
         if is_menu_displayed == True:
             is_menu_displayed = show_pause_menu(screen)
 
-        scroll_x_camera += player.x_current_speed * SCROLL_SPEED if player.rect.right > SCROLL_THRESHOLD else 0
-                    
-        if player.rect.right > SCROLL_THRESHOLD:
+        # Ne faire défiler la caméra que si le joueur avance (vitesse positive)
+        if player.x_current_speed > 0 and player.rect.right > SCROLL_THRESHOLD:
+            scroll_x_camera += player.x_current_speed * SCROLL_SPEED  # La caméra défile seulement vers la droite
             scroll_x = player.x_current_speed * SCROLL_SPEED
 
         # Ici on fait défiler toutes les plateformes
@@ -228,7 +239,7 @@ while isRunning:
             draw_visible_tiles(["ice_layer", "lava_block_layer", "tree0_layer"], scroll_x_camera)
             actual_platforms = add_sprites_to_group(["collision_tree0_layer", "ice_collision_layer", "lava_block_collision_layer"], actual_platforms)
 
-        draw_visible_tiles(season_cycle.SEASON_LAYERS["Spring"], scroll_x_camera) #
+        draw_visible_tiles(season_cycle.SEASON_LAYERS[current_season], scroll_x_camera)
 
         player.show_age(screen)
         player.is_jumping = False
@@ -244,6 +255,19 @@ while isRunning:
 
         elif not collided_platform:
             player.is_grounded = False
+
+        # detect end game
+        if gem:
+            gem.rect.x -= scroll_x 
+            if pygame.sprite.collide_rect(player, gem):
+                player.is_blocked = True
+                
+                # afficher un message de fin de jeu sur l'écran
+                font = pygame.font.Font(None, 36)
+                text = font.render("You won!", True, colors.RED)
+                padding = 50
+                screen.blit(text, (conf_screen.WIDTH_SCREEN // 2 - padding, conf_screen.HEIGHT_SCREEN // 2 - padding))
+        
         clock.tick(60)
         pygame.display.flip()
 

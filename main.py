@@ -234,7 +234,7 @@ while isRunning:
         
         #conf_screen.draw_grid(grid, screen)
         season_cycle.elapsed_time = (pygame.time.get_ticks() // (day_duration_ms)) + (added_time_ms)
-        sprites.draw(screen)
+        
         
         # Mettre à jour et afficher le cycle des saisons
         if not isFinish:
@@ -258,7 +258,8 @@ while isRunning:
             draw_visible_tiles(["ice_layer", "lava_block_layer", "tree0_layer"], scroll_x_camera)
             actual_platforms = add_sprites_to_group(["collision_tree0_layer", "ice_collision_layer", "lava_block_collision_layer"], actual_platforms)
 
-        draw_visible_tiles(season_cycle.SEASON_LAYERS[current_season], scroll_x_camera)
+        draw_visible_tiles([season_cycle.SEASON_LAYERS[current_season], "decorations_layer"], scroll_x_camera)
+        sprites.draw(screen)
 
         player.show_age(screen)
         player.is_jumping = False
